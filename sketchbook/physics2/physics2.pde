@@ -69,14 +69,14 @@ void draw() {
   //conditionals to outline collisions
   if (xR >= width-10) {
     xspeedR = -DAMP*xspeedR;
-    xR = width-11;
+    xR = prevxR;
   } else if (xR < 10) {
     xspeedR = -DAMP*xspeedR;
-    xR = 11;
+    xR = prevxR;
   }
   if (yR >= height-10) {
     yspeedR = -DAMP*yspeedR;
-    yR = height-11;
+    yR = prevyR;
   }
   //collision for box
   if (left || right) { //left  and right side
