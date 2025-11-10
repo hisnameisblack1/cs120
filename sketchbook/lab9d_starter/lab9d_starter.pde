@@ -10,9 +10,9 @@ float r, g, b; //color
 void setup() {
   size(1000, 600);
 
-  x = 10;
-  y = height/2+15;
-  xspeed = 5;
+  x = 0;
+  y = random(height/2+10, height/2+25);
+  xspeed = random(5, 8);
   r = random(0, 255);
   g = random(0, 255);
   b = random(0, 255);
@@ -29,11 +29,11 @@ void draw() {
   if (x >= width) {
     xspeed = -1*xspeed;
     x = width;
-    y = height/2+65;
+    y = random(height/2+45, height/2+75);
   } else if (x < -50) {
     xspeed = -1*xspeed;
     x = -50;
-    y = height/2+15;
+    y = random(height/2+10, height/2+20);
   }
 }
 // -- DRAWING FUNCTIONS
