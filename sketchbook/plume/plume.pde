@@ -1,8 +1,7 @@
 // Henry Wrede Black
+// a moving plume of particles which cycles through the rainbow
 
-// a moving plume which cycles through the rainbow
-
-// spark properties -- MAKE ARRAY VARIABLES
+// spark properties
 float[] x, y;                // position
 float[] xspeed, yspeed;      // speed
 float[] hue, saturation, brightness;  // color (HSB)
@@ -18,7 +17,7 @@ void setup () {
   size(1000, 400);
   colorMode(HSB);
 
-  // start offscreen and invisible -- INIT ARRAY VAR
+  // initializes arrays to start particles offscreen and invisible
   x = new float[30000];
   for (int i = 0; i < x.length; i++) {
     x[i] = 0;
@@ -63,14 +62,12 @@ void setup () {
 
 void draw () {
   background(0);
-
   // draw spark
   for (int i = 0; i < x.length; i++) {
     noStroke();
     fill(hue[i], saturation[i], brightness[i], transparency[i]);
     ellipse(x[i], y[i], 2, 2);
   }
-
   // update spark
   for (int i = 0; i < x.length; i++) {
     if ( transparency[i] >= 0  ) {        // when spark is visible...
