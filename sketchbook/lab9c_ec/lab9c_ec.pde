@@ -1,9 +1,10 @@
 // Henry Wrede Black
-// exploding fireworks
+// exploding fireworks -- EXTRA CREDIT
 
 // spark properties
 float[] x, y;             // position
 float[] xspeed, yspeed;   // speed
+float[] hue; // base spark color
 float transparency;     // transparency
 
 float timer;            // stage timer
@@ -21,8 +22,9 @@ void draw () {
   background(0);
   // draw fireworks sparks
   for (int i = 0; i < x.length; i++) {
+    colorMode(HSB);
     noStroke();
-    fill(255, 255, 0, transparency);
+    fill(hue[i], 255, 255, transparency);
     ellipse(x[i], y[i], 4, 4);
   }
   // update fireworks sparks
@@ -56,25 +58,35 @@ void draw () {
 void reset () {
   // firework starts somewhere in the middle-ish of the screen,
   // at the bottom
-  float launchx = random(width/4, 3*width/4);
-  x = new float[1000];
+  float launchxA = random(width/4, width/2); // left side launch
+  float launchxB = random(width/2, 3*width/4); // right side launch
+  float random_hue = random(0, 360);
+  x = new float[2000];
   for (int i = 0; i < x.length; i++) {
-    x[i] = launchx;
+    if ( i <= 1000) { 
+      x[i] = launchxA;
+    } else if (i > 1000) {
+      x[i] = launchxB;
+    }
   }
-  y = new float[1000];
+  y = new float[2000];
   for (int i = 0; i < y.length; i++) {
     y[i] = height;
   }
-
   // launch goes straight up
-  xspeed = new float[1000];
+  xspeed = new float[2000];
   for (int i = 0; i < xspeed.length; i++) {
     xspeed[i] = 0;
   }
-  yspeed = new float[1000];
+  yspeed = new float[2000];
   for (int i = 0; i < yspeed.length; i++) {
     yspeed[i] = -6;
   }
   // spark is fully opaque during launch
   transparency = 255;
+  // random base color is chosen during each launch
+  hue = new float[2000];
+  for (int i = 0; i < hue.length; i++) {
+    hue[i] = random(-50, 50) + random_hue;
+  }
 }
