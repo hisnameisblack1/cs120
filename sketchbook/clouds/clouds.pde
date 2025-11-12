@@ -7,13 +7,11 @@ float[] w, h;                    // size
 float[] xspeed, yspeed;          // speed
 float[] transparency;            // transparency
 int[] lifetime;                  // lifetime
-
 // child emitter properties
 float[] emitX, emitY;            // center of emitter
 float[] emitW, emitH;            // size of emitter
 float[] emitXspeed, emitYspeed;  // speed of emitter
 int[] emitLife;                  // emitter lifetime
-
 // parent emitter properties
 float parentX, parentY;          // center of emitter
 float parentW, parentH;          // size of emitter
@@ -21,7 +19,6 @@ int parentLife;                  // emitter lifetime
 
 void setup () {
   size(800, 300);
-
   // start particle as not alive
   x = new float[30000];
   for (int i = 0; i < x.length; i++) {
