@@ -1,4 +1,5 @@
 // Henry Wrede Black
+// sierpinski gasket
 
 void setup() {
   size(500, 500);
@@ -8,7 +9,7 @@ void draw() {
   drawSierpinski(0, height, 500);
 }
 void drawSierpinski( float x, float y, float w) {
-  if (w < 100) {
+  if (w < 50) {
     // draw one triangle
     fill(0);
     stroke(0);
@@ -16,6 +17,6 @@ void drawSierpinski( float x, float y, float w) {
   } else {
    drawSierpinski(x, y, w/2);
    drawSierpinski(x+w/2, y, w/2);
-   drawSierpinski(x+w/2, y-w, w/2);
+   drawSierpinski(x+w/4, y-w/2, w/2);
   }
 }
