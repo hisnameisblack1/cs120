@@ -5,10 +5,8 @@
 
 float[] x, y;  // circle position
 float diam[];  // circle size
-float c[];     // circle color
-
+float[] c;     // circle color
 boolean fill;  // if true, fill the circle with its current
-//  color instead of white
 
 void setup () {
   size(600, 600);
@@ -22,7 +20,6 @@ void setup () {
   for (int i = 0; i < y.length; i++) {
     y[i] = random(0, height);
   }
-
   // circle starts with random size
   diam = new float[50];
   for (int i = 0; i < diam.length; i++) {

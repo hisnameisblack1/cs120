@@ -17,7 +17,7 @@ void setup () {
     y[i] = random(0, height);
   }
 
-  // ellipse will start moving after 200 frames
+  // each ellipse will start moving after 40 frames plus it's location in the array 
   timer = new int[50];
   for (int i = 0; i < timer.length; i++) {
     timer[i] = 40+40*i;
