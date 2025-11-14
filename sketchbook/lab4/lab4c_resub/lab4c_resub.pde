@@ -1,5 +1,5 @@
-//Henry Wrede Black
-
+// Henry Wrede Black
+// hypotrochoid
 
 float cx;
 float cy;
@@ -24,9 +24,8 @@ void draw() {
   ellipseMode(CENTER);
   // draw ellipse
   {
-    // calcuate x position based varying sine and cosine expressions
-    float x = (R-r)*cos(t) + a*r*cos(t*(R-r)/r) + cx; //parametric equation for x pos
-    float y = (R-r)*sin(t) - a*r*sin(t*(R-r)/r) + cy; //parametric equation for y pos
+   float x = (R-r)*cos(t) + a*r*cos(t*(R-r)/r) + cx; //parametric equation for x pos
+   float y = (R-r)*sin(t) - a*r*sin(t*(R-r)/r) + cy; //parametric equation for y pos
 
     noStroke();
     fill(255, 0, 0); //red
