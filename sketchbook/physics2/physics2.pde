@@ -9,9 +9,9 @@ float prevyR;
 float xspeedR;
 float yspeedR;
 //Physics variables
-final float G = 0.05; //gravity .... CONSTANT
+final float G = 0.05;     //gravity .... CONSTANT
 final float AIR = 0.0025; //air resistance or "k"
-final float DAMP = 0.9; //force impact transfer
+final float DAMP = 0.75;   //force impact transfer
 //collision variables
 boolean top;
 boolean bottom;
@@ -45,7 +45,7 @@ void draw() {
   xspeedR += -AIR*xspeedR;
   yspeedR += G + -AIR*yspeedR;
   // -- CONDITIONAL STATEMENTS
-  //inizialization of boolean variables
+  // inizialization of boolean variables
   if ((yR+10 >= 350) && (prevyR+10 < 350) && (xR+10 >= 100) && (xR-10 <= 300)) { //top
     top = true;
   } else {
@@ -66,31 +66,31 @@ void draw() {
   } else {
     right = false;
   }
-  //conditionals to outline collisions
-  if (xR >= width-10) {
+  // conditionals to outline collisions
+  if (xR+10 >= width) { // right side
     xspeedR = -DAMP*xspeedR;
     xR = prevxR;
-  } else if (xR < 10) {
+  } else if (xR-10 < 0) { // left side
     xspeedR = -DAMP*xspeedR;
     xR = prevxR;
   }
-  if (yR >= height-10) {
+  if (yR+10 >= height) { // bottom
     yspeedR = -DAMP*yspeedR;
     yR = prevyR;
   }
-  //collision for box
-  if (left || right) { //left  and right side
+  // collision for box
+  if (left || right) { // left  and right side of box
     xspeedR = -(DAMP/2)*xspeedR; //damp value for when the balls bounce off the box are half what it is for the sides of the window
     xR = prevxR;
   }
-  if (top || bottom) { //top and bottom
+  if (top || bottom) { // top and bottom of box
     yspeedR = -(DAMP/2)*yspeedR;
     yR = prevyR;
   }
 }
 // -- INTERACTION
-void mouseClicked() { //clicking the mouse resets the values for all balls
-  //reset values for red ball
+void mouseClicked() { // clicking the mouse resets the values for all balls
+  // reset values for red ball
   xR = width/2;
   yR = 10;
   xspeedR = random(-5, 5);
