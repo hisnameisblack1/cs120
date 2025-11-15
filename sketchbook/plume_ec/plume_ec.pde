@@ -13,10 +13,12 @@ float emitterX, emitterY;    // center of emitter
 float emitterSpeed;          // speed of emitter
 float emitterHue;            // hue of particles currently being emitted
 float emitterT;              // time variable for emitter
-
+float R;
+float r;
+float a;
 
 void setup () {
-  size(1000, 400);
+  size(1000, 600);
   colorMode(HSB);
 
   // initializes arrays to start particles offscreen and invisible
@@ -59,7 +61,7 @@ void setup () {
 
   emitterX = width/2;
   emitterY = height/2;
-  emitterSpeed = 0;
+  emitterSpeed = 0.5;
   emitterHue = 0;
   emitterT = 0;
 }
@@ -76,7 +78,7 @@ void draw () {
   for (int i = 0; i < x.length; i++) {
     if ( transparency[i] >= 0  ) {        // when spark is visible...
       x[i] = x[i]+xspeed[i]+map(noise(t[i]), 0, 1, -.7, .7);   // noise to wiggle spark as it rises
-      y[i] = y[i]+yspeed[i]+map(noise(t[i]), 0, 1, -.7, .7);
+      y[i] = y[i]+yspeed[i]+map(noise(t[i]+1), 0, 1, -.7, .7);
       xspeed[i] = xspeed[i]-.01*xspeed[i];
       transparency[i] = transparency[i]-1;
       t[i] = t[i]+.005;
@@ -94,15 +96,16 @@ void draw () {
   }
   // update emitter
   fill(255, 255, 255, 100);
-  ellipse(emitterX, emitterY, 50, 50);
-  emitterX += map(noise(emitterT), 0, 1, -10, 10);
-  emitterY += map(noise(emitterT+1), 0, 1, -10, 10);
-  emitterX = constrain(emitterX, 0, width);
-  emitterY = constrain(emitterY, 0, height);
-  // emitterSpeed += map(noise(emitterT), 0, 1, -0.5, 0.5);
+  emitterX += map(noise(emitterT), 0, 1, -2, 2);
+  emitterY += map(noise(emitterT+1), 0, 1, -2, 2);
+  emitterX = constrain(emitterX, 0, 700);
+  emitterY = constrain(emitterY, 0, 400);
   // emitterX += emitterSpeed;
   //emitterY += emitterSpeed;
-  emitterHue += emitterX+map(emitterX, 0, width, 0, 255) ;  // so it cycles through colors across the width of the window
-
+  if (emitterHue > 255) {
+    emitterHue = 0;
+  } else {
+    emitterHue += 1;  // so it cycles through colors across the width of the window
+  }
   emitterT += 0.01;
 }
