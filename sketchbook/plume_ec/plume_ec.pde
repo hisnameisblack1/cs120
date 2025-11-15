@@ -97,10 +97,12 @@ void draw () {
   ellipse(emitterX, emitterY, 50, 50);
   emitterX += map(noise(emitterT), 0, 1, -10, 10);
   emitterY += map(noise(emitterT+1), 0, 1, -10, 10);
+  emitterX = constrain(emitterX, 0, width);
+  emitterY = constrain(emitterY, 0, height);
   // emitterSpeed += map(noise(emitterT), 0, 1, -0.5, 0.5);
   // emitterX += emitterSpeed;
   //emitterY += emitterSpeed;
-  emitterHue += emitterSpeed*255/width;  // so it cycles through colors across the width of the window
+  emitterHue += emitterX+map(emitterX, 0, width, 0, 255) ;  // so it cycles through colors across the width of the window
 
   emitterT += 0.01;
 }
