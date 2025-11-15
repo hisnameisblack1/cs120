@@ -7,15 +7,12 @@ float[] xspeed, yspeed;               // speed
 float[] hue, saturation, brightness;  // color (HSB)
 float[] transparency;                 // transparency
 float[] t;                            // noise parameter
-
 // emitter properties
-float emitterX, emitterY;    // center of emitter
 float emitterSpeed;          // speed of emitter
 float emitterHue;            // hue of particles currently being emitted
 float emitterT;              // time variable for emitter
-float R;
-float r;
-float a;
+float R, r, a;               // variables for hypoconchroidal motion
+float cx, cy;                // centerpoint of hypoconchroid
 
 void setup () {
   size(1000, 600);
@@ -59,15 +56,22 @@ void setup () {
     t[i] = 0;
   }
 
-  emitterX = width/2;
-  emitterY = height/2;
   emitterSpeed = 0.5;
   emitterHue = 0;
-  emitterT = 0;
+  emitterT = 1;
+  cx = width/2;
+  cy = height/2;
+  R = 133;
+  r = 57;
+  a = 1.5;
 }
 
 void draw () {
   background(0);
+  // calculate position of emitter
+  float emitterX = (R-r)*cos(emitterT) + a*r*cos(emitterT*(R-r)/r) + cx;
+  float emitterY = (R-r)*sin(emitterT) + a*r*sin(emitterT*(R-r)/r) + cy;
+
   // draw spark
   for (int i = 0; i < x.length; i++) {
     noStroke();
@@ -94,18 +98,11 @@ void draw () {
       transparency[i] = random(200, 255);
     }
   }
-  // update emitter
-  fill(255, 255, 255, 100);
-  emitterX += map(noise(emitterT), 0, 1, -2, 2);
-  emitterY += map(noise(emitterT+1), 0, 1, -2, 2);
-  emitterX = constrain(emitterX, 0, 700);
-  emitterY = constrain(emitterY, 0, 400);
-  // emitterX += emitterSpeed;
-  //emitterY += emitterSpeed;
+  // update emitter hue
   if (emitterHue > 255) {
     emitterHue = 0;
   } else {
-    emitterHue += 1;  // so it cycles through colors across the width of the window
+    emitterHue += 0.25;  // so it cycles through colors across the width of the window
   }
-  emitterT += 0.01;
+  emitterT += 0.015;
 }
