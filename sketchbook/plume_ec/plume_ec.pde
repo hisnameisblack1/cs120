@@ -15,7 +15,7 @@ float R, r, a;               // variables for hypoconchroidal motion
 float cx, cy;                // centerpoint of hypoconchroid
 
 void setup () {
-  size(1000, 600);
+  size(1500, 800);
   colorMode(HSB);
 
   // initializes arrays to start particles offscreen and invisible
