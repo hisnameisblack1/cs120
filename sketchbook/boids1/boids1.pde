@@ -1,6 +1,6 @@
 // Henry Wrede Black
 
-// template for a single boid
+// single boid arrives at the mouse position
 
 PVector pos, vel;           // boid's position and velocity
 float radius, angle;        // boid's neighborhood
@@ -28,9 +28,10 @@ void draw () {
 
   // 2 - compute net steering force
   //  a - compute steering force for each behavior
-
+  PVector arrive = computeArrive(pos, vel, maxspeed, new PVector(mouseX, mouseY), 100);
   //  b - combine forces (one behavior)
-  PVector steer = new PVector(0,0);
+  PVector steer = new PVector(0, 0);
+  steer.add(arrive);
 
   //  c - limit the size of the force that can be applied
   steer.limit(maxforce);
@@ -43,16 +44,16 @@ void draw () {
 
   // 4 - update boid's position
   //  a - update position by adding velocity
-  pos.add(vel); 
+  pos.add(vel);
   //  b - wrap at edges of window
-  if ( pos.x > width ) { 
+  if ( pos.x > width ) {
     pos.x = 0;
-  } else if ( pos.x < 0 ) { 
+  } else if ( pos.x < 0 ) {
     pos.x = width;
   }
-  if ( pos.y > height ) { 
+  if ( pos.y > height ) {
     pos.y = 0;
-  } else if ( pos.y < 0 ) { 
+  } else if ( pos.y < 0 ) {
     pos.y = height;
   }
 }
