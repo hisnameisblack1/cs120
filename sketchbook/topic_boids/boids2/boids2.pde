@@ -37,7 +37,7 @@ void draw () {
     PVector forward = computeForward(pos[i], vel[i], maxspeed);
     //  b - combine forces (one behavior)
     PVector steer = new PVector(0, 0);
-    separation.setMag(3);
+    separation.setMag(5);
     alignment.setMag(3);
     cohesion.setMag(2);
 

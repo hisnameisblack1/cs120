@@ -5,6 +5,8 @@ PVector[] pos, vel;           // boid's position and velocity
 float radius, angle;        // boid's neighborhood
 float maxforce, maxspeed;   // boid's maximum acceleration and speed
 
+PVector obstaclePos;
+
 void setup () {
   size(600, 600);
 
@@ -20,12 +22,20 @@ void setup () {
   angle = radians(135);
   maxforce = .2;
   maxspeed = 3;
+
+  obstaclePos = new PVector(random(0, width), random(0, height));
 }
 
 void draw () {
   background(255);
   for (int i = 0; i < pos.length; i++) {
     // 1 - draw scene
+    //  a - draw obstacle
+    ellipseMode(CENTER);
+    fill(100);
+    ellipse(obstaclePos.x, obstaclePos.y, 100, 100);
+    
+    //  b - draw boid
     drawBoid(pos[i], vel[i], 255, 0, 0);
   }
   for (int i = 0; i < pos.length; i++) {
@@ -35,8 +45,8 @@ void draw () {
 
     //  b - combine forces (one behavior)
     PVector steer = new PVector(0, 0);
-    separation.setMag(3);
-    
+    separation.setMag(1);
+
     steer.add(separation);
 
     //  c - limit the size of the force that can be applied
