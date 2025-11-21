@@ -1,4 +1,4 @@
-// Henry Black
+// Henry Wrede Black
 // Intro to L-Systems - Quadratic Koch Island
 
 void setup() {
