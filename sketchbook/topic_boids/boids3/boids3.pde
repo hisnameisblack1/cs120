@@ -23,7 +23,7 @@ void setup () {
   maxforce = .2;
   maxspeed = 3;
 
-  obstaclePos = new PVector(random(0, width), random(0, height));
+  obstaclePos = new PVector(random(50, width-50), random(50, height-50));
 }
 
 void draw () {
@@ -34,21 +34,38 @@ void draw () {
     ellipseMode(CENTER);
     fill(100);
     ellipse(obstaclePos.x, obstaclePos.y, 100, 100);
-    
+
     //  b - draw boid
     drawBoid(pos[i], vel[i], 255, 0, 0);
   }
   for (int i = 0; i < pos.length; i++) {
     // 2 - compute net steering force
     //  a - compute steering force for each behavior
-    PVector separation = computeSeparation(pos[i], vel[i], radius, angle, pos, vel);
-
+    PVector obsavoid = computeObsAvoidance(pos[i], vel[i], maxforce, obstaclePos, 50, 10);
+    PVector collisionavoid = computeCollisionAvoidance(pos[i], vel[i], maxforce, pos, vel, 10);
+    PVector seek = computeSeek(pos[i], vel[i], maxspeed, new PVector(mouseX, mouseY));
+    PVector wander = computeWander(pos[i], vel[i], maxspeed);
     //  b - combine forces (one behavior)
     PVector steer = new PVector(0, 0);
-    separation.setMag(1);
-
-    steer.add(separation);
-
+    obsavoid.setMag(100);
+    collisionavoid.setMag(100);
+    seek.setMag(2);
+    wander.setMag(1);
+  /*
+  STUCK - 
+  implementation of conditional pattern... how to calc potential collision
+  magnitude for avoidance?? v.mag()
+  */
+    float obsDistance = dist(pos[i].x, pos[i].y, obstaclePos.x, obstaclePos.y); // distance between individual boid and obstacle
+    float mouseDistance = dist(mouseX, mouseY, pos[i].x, pos[i].y); // distance between individal boid and mouse position
+    if (obsDistance <= 50) {
+     steer.add(obsavoid);
+    } else if (mouseDistance <= 200) {
+      steer.add(seek);
+    } else {
+      steer.add(wander);
+    }
+    steer.add(collisionavoid);
     //  c - limit the size of the force that can be applied
     steer.limit(maxforce);
 
