@@ -89,9 +89,10 @@ void draw () {
       PVector wander = computeWander(preypos[i], preyvel[i], preymaxspeed);
       //  b - combine forces (one behavior)
       PVector steer = new PVector(0, 0);
-      separation.setMag(6);
-      alignment.setMag(5);
-      cohesion.setMag(5);
+      separation.setMag(4);
+      alignment.setMag(3);
+      cohesion.setMag(3);
+      evade.setMag(0.25);
 
       if ( dist(preypos[i].x, preypos[i].y, predpos.x, predpos.y) < 250) { // if preyboid is within 250 pixels
         steer.add(evade);
