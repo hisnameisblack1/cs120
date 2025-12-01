@@ -1,141 +1,145 @@
 // Henry Wrede Black
-// combined behaviours
+// group of boids folling leader
 
-// prey
-PVector preypos, preyvel;  // position and velocity
-float preyhunger;  // hunger
-float preyradius, preyangle;  // defines what the prey can see
-float preymaxforce, preymaxspeed;  // other prey parameters
+// followers
+PVector[] follpos, follvel;  // position and velocity
 
-// predator
-PVector predpos, predvel;  // position and velocity
-float predradius, predangle;  // defines what the predator can see
-float predmaxforce, predmaxspeed;  // other predator parameters
+// leader
+PVector leadpos, leadvel;    // position and velocity
 
-// food
-float food;   // amount of food left
-PVector foodpos;   // food position
+// gen pararamters for all boids
+float radius, angle;         // defines what the follower can see
+float maxforce, maxspeed;    // other follower parameters
+
+// variables for parametric equation
+float t;                     // time variable
+float R, r, a;               // variables for hypoconchroidal motion
+float cx, cy;                // centerpoint of hypoconchroid
 
 void setup () {
   size(800, 800);
 
   // start with random positions and velocities
-  preypos = new PVector(random(0, width), random(0, height));
-  preyvel = new PVector(random(-1, 1), random(-1, 1));
-  predpos = new PVector(random(0, width), random(0, height));
-  predvel = new PVector(random(-1, 1), random(-1, 1));
-
-  // hunger
-  preyhunger = random(100, 1000);
+  //  followers
+  follpos = new PVector[100];
+  follvel = new PVector[100];
+  for (int i = 0; i < follpos.length; i++) {
+    follpos[i] = new PVector(random(0, width), random(0, height));
+    follvel[i] = new PVector(random(-1, 1), random(-1, 1));
+  }
+  //  leader
+  leadvel =  new PVector(random(-1, 1), random(-1, 1));
 
   // other boid properties
-  preyradius = 60;
-  preyangle = radians(135);
-  preymaxforce = .3;
-  preymaxspeed = 3;
-  predradius = 300;
-  predangle = radians(135);
-  predmaxforce = .1;
-  predmaxspeed = 2;
+  radius = 60;
+  angle = radians(135);
+  maxforce = .3;
+  maxspeed = 3;
 
-  // food
-  food = 255;
-  foodpos = new PVector(random(50, width-50), random(50, height-50));
+  t = 1;
+  cx = width/2;
+  cy = height/2;
+  R = 133;
+  r = 57;
+  a = 1.5;
 }
 
 void draw () {
-
   // 1 - draw scene
   background(255);
-  // food
-  fill(255-food);
-  ellipse(foodpos.x, foodpos.y, 20, 20);
-  // prey boid
-  drawBoid(preypos, preyvel, 255, 255-preyhunger, 255-preyhunger);
-  // predator boid
-  drawBoid(predpos, predvel, 0, 0, 255);
-
-  // -- update prey ---------------------------------------------------------
-
-  // if the prey isn't full and food has been reached, update hunger and food supply
-  // otherwise prey gets more hungry
-  if ( preyhunger < 1000 && dist(foodpos.x, foodpos.y, preypos.x, preypos.y) < 10 ) {
-    preyhunger = preyhunger+100;
-    food = food-.5;
-  } else {
-    preyhunger = preyhunger-1;
+  for (int i = 0; i < follpos.length; i++) {
+    // follower boid
+    drawBoid(follpos[i], follvel[i], 0, 150, 0);
   }
-  // update prey's position and velocity
+  // leader boid
+PVector leaderpos = new PVector((R-r)*cos(t) + a*r*cos(t*(R-r)/r) + cx, (R-r)*sin(t) + a*r*sin(t*(R-r)/r) + cy);
+  
+  drawBoid(leaderpos, leadvel, 0, 200, 200);
+
+  // -- update followers ---------------------------------------------------------
+  // update follower's position and velocity
+  {
+    for (int i = 0; i < follpos.length; i++) {
+      // 2 - compute net steering force
+      //  a - compute steering force for each behavior
+      PVector wander = computeWander(follpos[i], follvel[i], maxspeed);
+      PVector offset_pursuit = computeOffsetPursuit ( follpos[i], follvel[i], maxspeed, leaderpos, leadvel, new PVector(-leaderpos.x-10, leaderpos.y));
+      PVector avoid = computeCollisionAvoidance(follpos[i], follvel[i], maxforce, leaderpos, leadvel, 100);
+      PVector separation = computeSeparation(follpos[i], follvel[i], radius, angle, follpos, follvel);
+
+      //  b - combine forces (one behavior)
+      PVector steer = new PVector(0, 0);
+      if ( dist(follpos[i].x, follpos[i].y, leaderpos.x, leaderpos.y) < 300) {
+        steer.add(offset_pursuit);
+        steer.add(separation);
+        steer.add(avoid);
+      } else {
+        steer.add(wander);
+      }
+
+      //  c - limit the size of the force that can be applied
+      steer.limit(maxforce);
+
+      // 3 - update boid's velocity
+      //  a - add net steering force
+      follvel[i].add(steer);
+      //  b - limit boid's max speed
+      follvel[i].limit(maxspeed);
+
+      // 4 - update boid's position
+      //  a - update position by adding velocity
+      follpos[i].add(follvel[i]);
+      //  b - wrap at edges of window
+      if ( follpos[i].x > width ) {
+        follpos[i].x = 0;
+      } else if ( follpos[i].x < 0 ) {
+        follpos[i].x = width;
+      }
+      if ( follpos[i].y > height ) {
+        follpos[i].y = 0;
+      } else if ( follpos[i].y < 0 ) {
+        follpos[i].y = height;
+      }
+    }
+  }
+
+  // -- update leader ---------------------------------------------------------
+  // update leader's position and velocity
   {
     // 2 - compute net steering force
     //  a - compute steering force for each behavior
-
+    PVector wander = computeWander(leaderpos, leadvel, maxspeed);
     //  b - combine forces (one behavior)
     PVector steer = new PVector(0, 0);
 
+    steer.add(wander);
+
     //  c - limit the size of the force that can be applied
-    steer.limit(preymaxforce);
+    steer.limit(maxforce);
 
     // 3 - update boid's velocity
     //  a - add net steering force
-    preyvel.add(steer);
+    leadvel.add(steer);
     //  b - limit boid's max speed
-    preyvel.limit(preymaxspeed);
+    leadvel.limit(maxspeed);
 
     // 4 - update boid's position
     //  a - update position by adding velocity
-    preypos.add(preyvel); 
+    leaderpos.add(leadvel);
     //  b - wrap at edges of window
-    if ( preypos.x > width ) { 
-      preypos.x = 0;
-    } else if ( preypos.x < 0 ) { 
-      preypos.x = width;
+    if ( leaderpos.x > width ) {
+      leaderpos.x = 0;
+    } else if ( leaderpos.x < 0 ) {
+      leaderpos.x = width;
     }
-    if ( preypos.y > height ) { 
-      preypos.y = 0;
-    } else if ( preypos.y < 0 ) { 
-      preypos.y = height;
-    }
-  }
-
-  // -- update predator ---------------------------------------------------------
-  // update predator's position and velocity
-  {
-    // 2 - compute net steering force
-    //  a - compute steering force for each behavior
-
-    //  b - combine forces (one behavior)
-    PVector steer = new PVector(0, 0);
-
-    //  c - limit the size of the force that can be applied
-    steer.limit(predmaxforce);
-
-    // 3 - update boid's velocity
-    //  a - add net steering force
-    predvel.add(steer);
-    //  b - limit boid's max speed
-    predvel.limit(predmaxspeed);
-
-    // 4 - update boid's position
-    //  a - update position by adding velocity
-    predpos.add(predvel); 
-    //  b - wrap at edges of window
-    if ( predpos.x > width ) { 
-      predpos.x = 0;
-    } else if ( predpos.x < 0 ) { 
-      predpos.x = width;
-    }
-    if ( predpos.y > height ) { 
-      predpos.y = 0;
-    } else if ( predpos.y < 0 ) { 
-      predpos.y = height;
+    if ( leaderpos.y > height ) {
+      leaderpos.y = 0;
+    } else if ( leaderpos.y < 0 ) {
+      leaderpos.y = height;
     }
   }
-
-  // -- update food ---------------------------------------------------------
-  // move food if depleted
-  if ( food < 0 ) {
-    food = 255;
-    foodpos = new PVector(random(50, width-50), random(50, height-50));
-  }
+  // Update time variable 
+  t += 0.015;
+  
+  
 }
