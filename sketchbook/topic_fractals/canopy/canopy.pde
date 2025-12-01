@@ -9,7 +9,7 @@ void draw() {
 
   drawTree(width/2, height, 100, -PI/2, 2*PI/11, 0.75);
 }
-// position (x,y), line segment length (len), 
+// position (x,y), line segment length (len), orentation angle (a), angle (b) between segments, scale factor (s) between iterations
 void drawTree(float x, float y, float len, float a, float b, float s) {
   if ( len < 5) {
     return;
