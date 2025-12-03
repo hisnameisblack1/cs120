@@ -6,7 +6,7 @@ void setup() {
 }
 void draw() {
   background(255);
-  
+
   drawfract(width/2, height, 4, 7);
 }
 
@@ -28,7 +28,7 @@ void drawF0(int depth, float len) {
   } else {
     // rule: F1[+F0]-F0
     drawF1(depth-1, len);
-   pushMatrix();
+    pushMatrix();
     rotate(radians(45));
     drawF0(depth-1, len);
     popMatrix();
@@ -36,14 +36,14 @@ void drawF0(int depth, float len) {
     drawF0(depth-1, len);
   }
 }
-void drawfract (int x, int y, float len, int depth){
+void drawfract (int x, int y, float len, int depth) {
   pushMatrix();
-  
+
   translate(x, y);
   rotate(radians(270));
-  
+
   // generator: F0
   drawF0(depth, len);
-  
+
   popMatrix();
 }
