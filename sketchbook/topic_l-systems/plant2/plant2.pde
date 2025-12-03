@@ -10,27 +10,38 @@ void draw() {
   drawFract(width/2, height, 1.5, 7);
 }
 // F - Production rule
-//   production rule:
-//   angle: , scale factor: 1
+//   production rule: F -> FF
+//   angle: 25.7, scale factor: 1
 void drawF(int depth, float len) {
   if (depth == 0) {
     // do 'F' - draw line, move turtle
     line(0, 0, len, 0);
     translate(len, 0);
   } else {
-    // otherwise do what the rule states: 
-   
+    // otherwise do what the rule states: F -> FF
+   drawF(depth-1, len);
+   drawF(depth-1, len);
   }
 }
 
 // X - Production rule
-//   production rule: 
-//   angle: , scale factor: 1
+//   production rule: X → F[+X][-X]FX
+//   angle: 25.7, scale factor: 1
 void drawX(int depth, float len) {
   if (depth == 0) {
   } else {
-    // otherwise do what rule states: 
-
+    // otherwise do what rule states: X → F[+X][-X]FX
+  drawF(depth-1, len);
+  pushMatrix();
+  rotate(radians(25.7));
+  drawX(depth-1, len);
+  popMatrix();
+  pushMatrix();
+  rotate(radians(-25.7));
+  drawX(depth-1, len);
+  popMatrix();
+  drawF(depth-1, len);
+  drawX(depth-1, len);
   }
 }
 
