@@ -7,7 +7,7 @@ void setup() {
 void draw() {
   background(255);
   
-  drawFract(width/2, height, 1.5, 7);
+  drawFract(width/2, height, 5, 5);
 }
 // F - Production rule
 //   production rule: F → FF
@@ -38,6 +38,7 @@ void drawX(int depth, float len) {
     drawX(depth-1, len);
     popMatrix();
     rotate(radians(22.5));
+    drawX(depth-1, len);
     popMatrix();
     rotate(radians(22.5));
     drawF(depth-1, len);

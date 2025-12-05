@@ -1,5 +1,5 @@
 // Henry Wrede Black
-// group of boids following leader
+// group of boids following leader, leader is tracking an invisible point moving around window
 
 // followers
 PVector[] follpos, follvel;  // position and velocity
@@ -37,11 +37,11 @@ void setup () {
   radius = 60;
   angle = radians(135);
   maxforce = .3;
-  maxspeed = 3;
-  leadmaxforce = .6;
-  leadmaxspeed = 10;
+  maxspeed = 4;
+  leadmaxforce = .4;
+  leadmaxspeed = 4;
 
-  //  hypoconchroid properties
+  //  hypoconchroid properties for point pathing
   t = 1;
   cx = width/2;
   cy = height/2;
@@ -54,7 +54,7 @@ void draw () {
   // 1 - draw scene
   background(255);
 
-  // invisible point for leader pathfinding
+  // invisible point moving in hypoconchroidal pattern for leader pathfinding
   PVector point = new PVector((R-r)*cos(t) + a*r*cos(t*(R-r)/r) + cx, (R-r)*sin(t) + a*r*sin(t*(R-r)/r) + cy); // parametric equation
   noStroke();
   point(point.x, point.y);
@@ -80,7 +80,7 @@ void draw () {
       PVector cohesion = computeCohesion(follpos[i], follvel[i], radius, angle, follpos, follvel);
       //  b - combine forces (one behavior)
       PVector steer = new PVector(0, 0);
-      separation.setMag(2);
+      separation.setMag(3);
       alignment.setMag(1);
       cohesion.setMag(1);
 
@@ -147,7 +147,7 @@ void draw () {
     //  a - add net steering force
     leadvel.add(steer);
     //  b - limit boid's max speed
-    leadvel.limit(maxspeed);
+    leadvel.limit(leadmaxspeed);
 
     // 4 - update boid's position
     //  a - update position by adding velocity

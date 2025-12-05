@@ -1,5 +1,5 @@
 // Henry Wrede Black
-// first plant
+// second plant
 
 void setup() {
   size(500, 500);
