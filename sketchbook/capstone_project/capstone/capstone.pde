@@ -9,6 +9,9 @@ void draw() {
   randomSeed(0);
   background(100, 150, 200);
 
+  // background elements
+  drawTerrain(0, height*0.3, width, height*0.3, 175, 50, 50, 50);
+
   // elements in the foreground of the sketch
   front_grass();
   drawTerrain(0, height*0.85, width, height*0.85, 20, 150, 100, 15);
@@ -19,7 +22,7 @@ void front_grass() {
   for (float x = 0, count = 0; count < 3000; x+= 0.5, count++) {
     stroke(0, random(150, 225), 50);
     strokeWeight(random(1, 5));
-    line(x, height*0.9, x+random(-10, 10), height*0.9-random(50, 175));
+    line(x, height*0.9, x+random(-10, 10), height*0.9-random(100, 200));
   }
 }
 // drawing function for terrain elements using fractals
