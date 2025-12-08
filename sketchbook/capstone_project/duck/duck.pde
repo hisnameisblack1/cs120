@@ -22,8 +22,19 @@ void draw() {
   drawBoid(duckpos, duckvel, 255, 0, 0);
 
   drawDuck(width/2, height/2);
+  
+  crosshair();
 }
-
+void crosshair(){
+  strokeWeight(4);
+  stroke(255, 0, 0);
+  fill(255, 0, 0);
+  ellipse(mouseX, mouseY, 5, 5);
+  line(mouseX, mouseY-10, mouseX, mouseY-25);
+  line(mouseX, mouseY+10, mouseX, mouseY+25);
+  line(mouseX-10, mouseY, mouseX-25, mouseY);
+  line(mouseX+10, mouseY, mouseX+25, mouseY);
+}
 void drawDuck( int x, int y) {
   pushMatrix();
   translate(x, y);
