@@ -10,7 +10,7 @@ float maxforce, maxspeed;   // boid's maximum acceleration and speed
 float[] grass_stroke, grass_strokeweight;
 float[] grassX1, grassX2, grassY2;
 
-boolean shoot, hit;
+boolean[] hit; // boolean array that says if a bird has been hit or not
 PVector shot;
 
 void setup() {
@@ -20,16 +20,14 @@ void setup() {
   // boids (ducks) start with random position above the grass and random velocity
   pos = new PVector[5];
   vel = new PVector[5];
-  hitpos = new PVector[5];
-  hitvel = new PVector[5];
+  hit = new boolean[5];
   for (int i = 0; i < pos.length; i++) {
-    pos[i] = new PVector(random(0, width), random(height*0.11, height*0.54));
+    pos[i] = new PVector(random(0, width), random(height*0.11, height*0.54)); // birds start with random positions and velocities
     vel[i] = new PVector(random(-1, 1), random(-1, 1));
+    
+    hit[i] = false; // no birds are hit when sketch starts
   }
-  for (int i = 0; i < pos.length; i++) {
-    hitpos[i] = pos[i];
-    hitvel[i] = vel[i];
-  }
+
   // boolean array... hit/not hit
   // other boid parameters
   radius = 60;
@@ -70,23 +68,22 @@ void draw() {
   for (int i = 0; i < pos.length; i++) {
     // 2 - compute net steering force
     PVector random_point_within_bounds = new PVector(random(0, width), random(height*0.25, height*0.4)); // stores a random coordinate for the boid to arrive at
-    PVector point_below_bird = new PVector(hitpos[i].x, height); // stores coordinate directly below bird
     //  a - compute steering force for each behavior
     PVector separation = computeSeparation(pos[i], vel[i], radius, angle, pos, vel);
     PVector wander = computeWander (pos[i], vel[i], maxspeed );
     PVector arrive_random = computeArrive (pos[i], vel[i], maxspeed, random_point_within_bounds, 100); // behaviour to return bird within bounds
-    PVector seek_down = computeSeek(hitpos[i], hitvel[i], maxspeed, point_below_bird); // behaviour to make the bird go down where it was hit
+    PVector seek_down = computeSeek(pos[i], vel[i], maxspeed, new PVector(pos[i].x, height)); // behaviour to make the bird go down where it was hit
     //  b - combine forces (one behavior)
     PVector steer = new PVector(0, 0);
     separation.setMag(5);
 
     // if hit, then boolean array true, and different set of behaviours
     if (dist(shot.x, shot.y, pos[i].x, pos[i].y) < 25) {
-     // pos[i] = hitpos[i];
+      hit[i] = true; // bird is now hit, will only follow the seek down behaviour
       steer.add(seek_down);
-    } else if ((pos[i].y < height*0.1 || pos[i].y > height*0.55) || (pos[i].x < 0 || pos[i].x > width)) { // if bird leaves set bounds of sketch, arrive to a random point within the bounds
+    } else if (!hit[i] && (pos[i].y < height*0.1 || pos[i].y > height*0.55) || (pos[i].x < 0 || pos[i].x > width)) { // if bird leaves set bounds of sketch, arrive to a random point within the bounds
       steer.add(arrive_random);
-    } else if (pos[i] == random_point_within_bounds) { // if the bird arrives at the random point, then return to regular behaviours
+    } else if (!hit[i] && pos[i] == random_point_within_bounds) { // if the bird arrives at the random point, then return to regular behaviours
       steer.add(separation);
       steer.add(wander);
     }
@@ -155,11 +152,10 @@ void tree() {
 // -- INTERACTION ELEMENTS
 void mousePressed() {
   if (mousePressed) {
-    shoot = true;
     shot = new PVector(mouseX, mouseY);
     println(shot);
   } else {
-    shoot = false;
+    shot = new PVector(0, 0);
   }
 }
 /*
