@@ -24,7 +24,7 @@ void setup() {
   for (int i = 0; i < pos.length; i++) {
     pos[i] = new PVector(random(0, width), random(height*0.11, height*0.54)); // birds start with random positions and velocities
     vel[i] = new PVector(random(-1, 1), random(-1, 1));
-    
+
     hit[i] = false; // no birds are hit when sketch starts
   }
 
@@ -33,7 +33,7 @@ void setup() {
   radius = 60;
   angle = radians(135);
   maxforce = .2;
-  maxspeed = 3;
+  maxspeed = 10;
 
   // -- Grass array value initialization
   grass_stroke = new float[3000];
@@ -63,7 +63,7 @@ void draw() {
   //   Boids Pattern
   for (int i = 0; i < pos.length; i++) {
     // 1 - draw scene
-    drawBoid(pos[i], vel[i], 255, 0, 0);
+    drawBoid(pos[i], vel[i]);
   }
   for (int i = 0; i < pos.length; i++) {
     // 2 - compute net steering force
@@ -153,7 +153,6 @@ void tree() {
 void mousePressed() {
   if (mousePressed) {
     shot = new PVector(mouseX, mouseY);
-    println(shot);
   } else {
     shot = new PVector(0, 0);
   }
@@ -176,12 +175,12 @@ void mousePressed() {
  
  -- shooting mechanic
  DONE - crosshair linked to mouse position
- - "bullet"
+ - "bullet" (don't really need), look at adding if nothing else is needed
  
  -- boid ducks
  - draw out (or use png image???)
- - behaviour first
- - implement shoot-down mechanic later, (particle system spatter effect or is that too much?)
+ DONE - behaviour first
+ DONE  - implement shoot-down mechanic later, (particle system spatter effect or is that too much?)
  
  -- dog
  - draw out

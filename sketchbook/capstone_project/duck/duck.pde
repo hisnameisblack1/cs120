@@ -22,10 +22,10 @@ void draw() {
   drawBoid(duckpos, duckvel, 255, 0, 0);
 
   drawDuck(width/2, height/2);
-  
+
   crosshair();
 }
-void crosshair(){
+void crosshair() {
   strokeWeight(4);
   stroke(255, 0, 0);
   fill(255, 0, 0);
@@ -36,25 +36,34 @@ void crosshair(){
   line(mouseX+10, mouseY, mouseX+25, mouseY);
 }
 void drawDuck( int x, int y) {
+  ellipseMode(CENTER);
   pushMatrix();
   translate(x, y);
-
+rotate(HALF_PI);
   noStroke();
-  // wings
+  // back wing
   fill(0);
-  triangle(-20, 0, -25, 40, 0, 15);
-  // body
+  triangle(-20, 0, -30, 55, 0, 15);
+  // body 1
   fill(175);
-  // rotate(radians(45));
   ellipse(0, 0, 40, 60);
+  // right wing
+  fill(100);
+  triangle(-20, 0, -20, 65, 0, 15);
+  // body 2
+  fill(200);
+  ellipse(-5, 0, 30, 50);
+  // bill
+  fill(255, 200, 0);
+  quad(-23, -45, -15, -65, -10, -65, -11, -45);
   // head
-  //  rotate(radians(-90));
   fill(0, 190, 0);
   ellipse(-18, -30, 30, 40);
-
-
-
-
-
+  // eyes
+  fill(255);
+  ellipse(-20, -40, 15, 10);
+  fill(0);
+  ellipse(-20, -41, 7, 3);
+  
   popMatrix();
 }

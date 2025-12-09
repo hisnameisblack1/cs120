@@ -2,14 +2,35 @@
 // its velocity)
 //  pos, vel - boid's position and velocity
 //  r, g, b - boid's color
-void drawBoid ( PVector pos, PVector vel, float r, float g, float b ) {
+void drawBoid ( PVector pos, PVector vel) {
   pushMatrix();
   translate(pos.x, pos.y);
   rotate(atan2(vel.y, vel.x));
-  stroke(0);
-  strokeWeight(1);
-  fill(r, g, b);
-  triangle(10, 0, -10, -5, -10, 5);
+  rotate(HALF_PI);
+  noStroke();
+  // back wing
+  fill(0);
+  triangle(-20, 0, -30, 55, 0, 15);
+  // body 1
+  fill(175);
+  ellipse(0, 0, 40, 60);
+  // right wing
+  fill(100);
+  triangle(-20, 0, -20, 65, 0, 15);
+  // body 2
+  fill(200);
+  ellipse(-5, 0, 30, 50);
+  // bill
+  fill(255, 200, 0);
+  quad(-23, -45, -15, -65, -10, -65, -11, -45);
+  // head
+  fill(0, 190, 0);
+  ellipse(-18, -30, 30, 40);
+  // eyes
+  fill(255);
+  ellipse(-20, -40, 15, 10);
+  fill(0);
+  ellipse(-20, -41, 7, 3);
   popMatrix();
 }
 
