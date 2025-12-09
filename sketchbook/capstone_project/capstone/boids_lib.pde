@@ -7,6 +7,7 @@ void drawBoid ( PVector pos, PVector vel, float r, float g, float b ) {
   translate(pos.x, pos.y);
   rotate(atan2(vel.y, vel.x));
   stroke(0);
+  strokeWeight(1);
   fill(r, g, b);
   triangle(10, 0, -10, -5, -10, 5);
   popMatrix();
