@@ -1,6 +1,8 @@
 // Henry Wrede Black
 // CPSC 120 Capstone Project
 //    Duck-Hunt Inspired Interactive Animation
+//    Clicking the mouse on a bird will cause it to fall, where a dog will catch it
+//    Pressing "r" or "R" will release the birds
 
 PVector[] pos, vel;         // boid's position and velocity
 PVector[] hitpos, hitvel;
@@ -11,10 +13,11 @@ float[] grass_stroke, grass_strokeweight;
 float[] grassX1, grassX2, grassY2;
 
 boolean[] hit; // boolean array that says if a bird has been hit or not
-PVector shot; // stored (x,y) position of where the mouse clicked, used to see if shot hit or not in boid behaviours
+PVector shot;  // stored (x,y) position of where the mouse clicked, used to see if shot hit or not in boid behaviours
 
 float[] dogX, dogY; // animation array variables for the dog's position on the screen
-float up, down; // values for speeds at which the dog moves up or down
+float[] up;         // values for speeds at which the dogs moves up or down
+float t;
 
 void setup() {
   size(1500, 800);
@@ -24,8 +27,7 @@ void setup() {
   pos = new PVector[5];
   vel = new PVector[5];
   hit = new boolean[5];
-  dogX = new float[5];
-  dogY = new float[5];
+
   for (int i = 0; i < pos.length; i++) {
     pos[i] = new PVector(random(0, width), random(height*0.11, height*0.54)); // birds start with random positions and velocities
     vel[i] = new PVector(random(-1, 1), random(-1, 1));
@@ -38,12 +40,14 @@ void setup() {
   maxforce = .6;
   maxspeed = 10;
 
-  // Dog properties
+  // -- Dog properties
+  dogX = new float[5];
+  dogY = new float[5];
+  up = new float[5];
   for (int i = 0; i < dogY.length; i++) {
     dogY[i] = height;
+    up[i] = -10;
   }
-  up = -10;
-  down = 0;
 
   // -- Grass array value initialization
   grass_stroke = new float[1000];
@@ -58,6 +62,9 @@ void setup() {
     grassX2[i] = random(-10, 10);
     grassY2[i] = height*0.9-random(150, 200);
   }
+  
+  // initial value for time
+  t = 0;
 
   // Initial value for shot coords
   shot = new PVector(-10, -10);
@@ -77,12 +84,12 @@ void draw() {
   }
   for (int i = 0; i < pos.length; i++) {
     // 2 - compute net steering force
-    PVector random_point_within_bounds = new PVector(random(width*0.15, width*0.85), random(height*0.15, height*0.5)); // stores a random coordinate for the boid to arrive at
+    PVector random_point_within_bounds = new PVector(random(width*0.15, width*0.85), random(height*0.15, height*0.5)); // stores a random coordinate within bounds for the boid to arrive at
     //  a - compute steering force for each behavior
     PVector separation = computeSeparation(pos[i], vel[i], radius, angle, pos, vel);
     PVector wander = computeWander (pos[i], vel[i], maxspeed );
     PVector arrive_random = computeArrive (pos[i], vel[i], maxspeed, random_point_within_bounds, 100); // behaviour to return bird within bounds
-    PVector seek_down = computeArrive(pos[i], vel[i], maxspeed, new PVector(pos[i].x, height), 5); // behaviour to make the bird go down where it was hit
+    PVector seek_down = computeArrive(pos[i], vel[i], maxspeed, new PVector(pos[i].x, height), 5);     // behaviour to make the bird go down to the x pos where it was hit
     //  b - combine forces (one behavior)
     PVector steer = new PVector(0, 0);
     separation.setMag(5);
@@ -90,12 +97,12 @@ void draw() {
     // if the bird is hit, it will seek directly down...
     // or if the bird is out of bounds, it will seek a random point within bounds...
     // otherwise if bird is within bounds and not hit it will maintain regular behaviour (seperation/wander)...
-    if (dist(shot.x, shot.y, pos[i].x, pos[i].y) < 25 || hit[i]) { // if bird is within 25 pixels of stored (shot) value
+    if (dist(shot.x, shot.y, pos[i].x, pos[i].y) < 25 || hit[i]) { // if bird is within 25 pixels of stored (shot) value or already marked as "hit" - when hit is true, bird will then only seek down
       hit[i] = true; // set hit to true for the birds position in the array
-      steer.add(seek_down); // when hit is true, bird will only seek down
-    } else if (!hit[i] && (pos[i].y < height*0.1 || pos[i].y > height*0.55) || (pos[i].x < width*0.1 || pos[i].x > width*0.9)) { // if bird leaves set bounds of sketch, arrive to a random point within the bounds
+      steer.add(seek_down);
+    } else if (!hit[i] && (pos[i].y < height*0.1 || pos[i].y > height*0.55) || (pos[i].x < width*0.1 || pos[i].x > width*0.9)) { // if bird hasn't been "hit" and leaves set bounds of sketch, arrive to a random point within the bounds
       steer.add(arrive_random);
-    } else if (!hit[i]) { // if the bird arrives at the random point, then return to regular behaviours
+    } else if (!hit[i]) { // if bird hasn't been "hit" then continue regular behaviours
       steer.add(separation);
       steer.add(wander);
     }
@@ -118,27 +125,28 @@ void draw() {
     // draw dog
     for (int i = 0; i < dogX.length; i++) {
       dogX[i] = pos[i].x; // dog's x position is the same as the corresponding bird in the array
-      dog(dogX[i], dogY[i]);
+      dog(dogX[i]+map(noise(t), 0, 1, -20, 20), dogY[i]);
     }
     // update dog
     for (int i = 0; i < dogX.length; i++) {
       if (pos[i].y > height*0.9 && hit[i]) {
-        dogY[i] += up;
-        dogY[i] = max(dogY[i], height*0.65);
+        dogY[i] += up[i];
+        up[i] = min(0, up[i] + 0.18);
       } else {
-        dogY[i] += down;
+        dogY[i] += 10;
         dogY[i] = min(height, dogY[i]);
-        down = down + 0.1;
-        down = min(down, 20);
       }
     }
   }
+
+  t += 0.01; // update time variable
 
   // elements in the foreground of the sketch
   foreground_elements();
   crosshair();
 }
 // -- DRAWING FUNCTIONS
+// drawing function for crosshair that follows the mouse
 void crosshair() {
   strokeWeight(4);
   stroke(255, 0, 0);
@@ -150,14 +158,6 @@ void crosshair() {
   line(mouseX+10, mouseY, mouseX+25, mouseY);
 }
 
-// drawing function for the grass, set position
-void front_grass() {
-  for (int i = 0; i < grass_stroke.length; i++) {
-    stroke(0, grass_stroke[i], 50);
-    strokeWeight(grass_strokeweight[i]);
-    line(grassX1[i], height*0.9, grassX1[i]+grassX2[i], grassY2[i]);
-  }
-}
 // drawing function for terrain elements using fractals
 //  (x1, y1), (x2, y2) specify the endpoints for the midpoint displacement math
 //  (maxd) is the maximum displacement, which controls the "jaggedness" of the terrain
@@ -175,11 +175,19 @@ void drawTerrain(float x1, float y1, float x2, float y2, float maxd, int r, int 
     }
   }
 }
+// drawing function for the grass, set position
+void front_grass() {
+  for (int i = 0; i < grass_stroke.length; i++) {
+    stroke(0, grass_stroke[i], 50);
+    strokeWeight(grass_strokeweight[i]);
+    line(grassX1[i], height*0.9, grassX1[i]+grassX2[i], grassY2[i]);
+  }
+}
 // drawing function for all foreground elements, set position
 void foreground_elements() {
   front_grass(); // draws grass
   drawTerrain(0, height*0.85, width, height*0.85, 20, 150, 100, 15); //draws dirt in front of grass
-  for (float count = 0; count <= 25; count++) { // draws rocks on dirt
+  for (int count = 0; count <= 25; count++) {                        // draws rocks on dirt
     float x = random(0, width);
     float y = random(height*0.9, height);
     noStroke();
@@ -196,9 +204,9 @@ void dog(float x, float y) {
   ellipseMode(CORNER);
   fill(0);
   rotate(radians(-35));
-  ellipse(115, -135, 50, 100);
+  ellipse(115, -135, 50, 100);  // right ear
   rotate(radians(70));
-  ellipse(-165, -135, 50, 100);
+  ellipse(-165, -135, 50, 100); // left ear
   popMatrix();
   // duck on point at end of arm
   drawDuck(x+140, y-120); // draws the duck on the dog's right arm
@@ -207,17 +215,17 @@ void dog(float x, float y) {
   ellipseMode(CORNER);
   stroke(200, 85, 0);
   strokeWeight(20);
-  line(x+50, y-45, x+125, y-125); // right arm
+  line(x+50, y-45, x+125, y-125);                       // right arm
   arc(x-95, y-40, 75, 250, PI+radians(20), PI+HALF_PI); // left arm
   // body
   ellipseMode(CENTER);
   noStroke();
   fill(200, 90, 0);
-  ellipse(x, y, 125, 350); // bottom layer of body
+  ellipse(x, y, 125, 350);     // bottom layer of body
   fill(229, 115, 0);
-  ellipse(x, y+5, 115, 345); // top layer of body
+  ellipse(x, y+5, 115, 345);   // top layer of body
   // head
-  ellipse(x, y-100, 115, 75); // bottom head section
+  ellipse(x, y-100, 115, 75);  // bottom head section
   ellipse(x, y-145, 100, 115); // top head section
   fill(50);
   arc(x, y-115, 85, 50, 0-QUARTER_PI/2, PI+QUARTER_PI/2); // mouth
@@ -227,10 +235,10 @@ void dog(float x, float y) {
   fill(255);
   stroke(0);
   strokeWeight(2);
-  arc(x-10, y-155, 50, 65, HALF_PI, PI+HALF_PI); // left white
+  arc(x-10, y-155, 50, 65, HALF_PI, PI+HALF_PI);        // left white
   arc(x+10, y-155, 50, 65, PI+HALF_PI, TWO_PI+HALF_PI); // right white
   fill(0);
-  arc(x-10, y-155, 20, 35, HALF_PI, PI+HALF_PI); // left pupil
+  arc(x-10, y-155, 20, 35, HALF_PI, PI+HALF_PI);        // left pupil
   arc(x+10, y-155, 20, 35, PI+HALF_PI, TWO_PI+HALF_PI); // right pupil
   // nose
   noStroke();
@@ -273,51 +281,22 @@ void drawDuck( float x, float y) {
   popMatrix();
 }
 
-// drawing function for the tree
-void tree() {
-  // tree for the background, either an L-system (complicated), or a composite shape using fat lines for wood parts and whatever looks good for leafy bits
-}
-
 // -- INTERACTION ELEMENTS
+// actions to take when mouse is pressed
 void mousePressed() {
   if (mousePressed) {
-    shot = new PVector(mouseX, mouseY);
+    shot = new PVector(mouseX, mouseY); // store location where mouse was pressed, used to decide if bird was hit or not
   } else {
-    shot = new PVector(0, 0);
+    shot = new PVector(0, 0);           // otherwise, "hit" location is in a spot where birds can't reach
   }
 }
+// actions to take when a key is pressed
 void keyPressed() {
+  // releases all captured birds
   if (key == 'r' || key == 'R') {
     for (int i = 0; i < hit.length; i++) {
-      hit[i] = false;
+      hit[i] = false; // sets boolean array values to false
+      up[i] = -10;    // resets up speed of dogs
     }
   }
 }
-/*
- NEED TO ADD
- - clouds
- 
- - rain
- 
- - lightning
- 
- -- tree
- - could be fractal tree or composite shape
- 
- -- bush/rock
- - rock could be interesting if I use fractals to get some cool surface detail
- 
- DONE - variety in front terrain, rocks and small shrubs
- 
- -- shooting mechanic
- DONE - crosshair linked to mouse position
- - "bullet" (don't really need), look at adding if nothing else is needed
- 
- DONE -- boid ducks
- DONE - behaviour first
- DONE  - implement shoot-down mechanic later, (particle system spatter effect or is that too much?)
- 
- -- dog
- DONE - draw out
- DONE - pop-up mechanic
- */
