@@ -36,7 +36,7 @@ void setup() {
   radius = 60;
   angle = radians(135);
   maxforce = .6;
-  maxspeed = 25;
+  maxspeed = 10;
 
   // Dog properties
   for (int i = 0; i < dogY.length; i++) {
@@ -78,22 +78,25 @@ void draw() {
   for (int i = 0; i < pos.length; i++) {
     // 2 - compute net steering force
     PVector random_point_within_bounds = new PVector(random(0, width), random(height*0.25, height*0.4)); // stores a random coordinate for the boid to arrive at
+    PVector down_point = new PVector(pos[i].x, height);
     //  a - compute steering force for each behavior
     PVector separation = computeSeparation(pos[i], vel[i], radius, angle, pos, vel);
     PVector wander = computeWander (pos[i], vel[i], maxspeed );
     PVector arrive_random = computeArrive (pos[i], vel[i], maxspeed, random_point_within_bounds, 100); // behaviour to return bird within bounds
-    PVector seek_down = computeSeek(pos[i], vel[i], maxspeed, new PVector(pos[i].x, height)); // behaviour to make the bird go down where it was hit
+    PVector seek_down = computeArrive(pos[i], vel[i], maxspeed, new PVector(pos[i].x, height), 5); // behaviour to make the bird go down where it was hit
     //  b - combine forces (one behavior)
     PVector steer = new PVector(0, 0);
     separation.setMag(5);
 
     // if hit, then boolean array true, and different set of behaviours
-    if (dist(shot.x, shot.y, pos[i].x, pos[i].y) < 25) {
-      hit[i] = true; // bird is now hit, will only follow the seek down behaviour
+    if (dist(shot.x, shot.y, pos[i].x, pos[i].y) < 25 || hit[i]) { // if bird is within 25 pixels of stored (shot) value
+      hit[i] = true; // set hit to true for the birds position in the array
       steer.add(seek_down);
+      //steer.add(down_point);
+      // bird will only seek down
     } else if (!hit[i] && (pos[i].y < height*0.1 || pos[i].y > height*0.55) || (pos[i].x < 0 || pos[i].x > width)) { // if bird leaves set bounds of sketch, arrive to a random point within the bounds
       steer.add(arrive_random);
-    } else if (!hit[i] && pos[i] == random_point_within_bounds) { // if the bird arrives at the random point, then return to regular behaviours
+    } else if (!hit[i]) { // if the bird arrives at the random point, then return to regular behaviours
       steer.add(separation);
       steer.add(wander);
     }
@@ -146,7 +149,7 @@ void crosshair() {
 }
 
 // drawing function for the grass
-void front_grass() { // arrayify
+void front_grass() {
   for (int i = 0; i < grass_stroke.length; i++) {
     stroke(0, grass_stroke[i], 50);
     strokeWeight(grass_strokeweight[i]);
@@ -154,7 +157,7 @@ void front_grass() { // arrayify
   }
 }
 // drawing function for terrain elements using fractals
-//  (x1, y1), (x2, y2) specify the endpoints for the midpoint displacement algorithm
+//  (x1, y1), (x2, y2) specify the endpoints for the midpoint displacement math
 //  (maxd) is the maximum displacement, which controls the "jaggedness" of the terrain
 //  (r), (g), and (b) control the color of the resulting terrain
 void drawTerrain(float x1, float y1, float x2, float y2, float maxd, int r, int g, int b) {
