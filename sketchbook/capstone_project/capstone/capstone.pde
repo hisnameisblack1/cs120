@@ -5,7 +5,6 @@
 //    Pressing "r" or "R" will release the birds
 
 PVector[] pos, vel;         // boid's position and velocity
-PVector[] hitpos, hitvel;
 float radius, angle;        // boid's neighborhood
 float maxforce, maxspeed;   // boid's maximum acceleration and speed
 
@@ -28,10 +27,9 @@ void setup() {
   pos = new PVector[5];
   vel = new PVector[5];
   hit = new boolean[5];
-
   for (int i = 0; i < pos.length; i++) {
-    pos[i] = new PVector(random(0, width), random(height*0.11, height*0.54)); // birds start with random positions and velocities
-    vel[i] = new PVector(random(-1, 1), random(-1, 1));
+    pos[i] = new PVector(random(0, width), random(height*0.11, height*0.54)); // birds start with random positions
+    vel[i] = new PVector(random(-1, 1), random(-1, 1));                       // and velocities
 
     hit[i] = false; // no birds are hit when sketch starts
   }
@@ -46,8 +44,8 @@ void setup() {
   dogY = new float[5];
   up = new float[5];
   for (int i = 0; i < dogY.length; i++) {
-    dogY[i] = height;
-    up[i] = -10;
+    dogY[i] = height; // all dogs start at a y value equal to the window height
+    up[i] = -10;      // downward speed of the dogs starts as -10
   }
 
   // -- Grass array value initialization
@@ -57,40 +55,35 @@ void setup() {
   grassX2 = new float[1000];
   grassY2 = new float[1000];
   for (int i = 0; i < grass_stroke.length; i++) {
-    grass_stroke[i] = random(150, 225);
-    grass_strokeweight[i] = random(5, 15);
-    grassX1[i] = i*1.5;
-    grassX2[i] = random(-10, 10);
-    grassY2[i] = height*0.9-random(150, 200);
+    grass_stroke[i] = random(150, 225);       // color of grass varies
+    grass_strokeweight[i] = random(5, 15);    // thickness of grass varies
+    grassX1[i] = i*1.5;                       // blade of grass every 1.5 pixels
+    grassX2[i] = random(-10, 10);             // random x value for endpoint
+    grassY2[i] = height*0.9-random(150, 200); // random y value for endpoint
   }
 
-  // initial value for time
-  t = 0;
-  t2 = 0;
+  t = 0;  // first time variable, used for perlin noise equation
+  t2 = 0; // second time variable, used for the parametric motion equation
 
   // Initial value for shot coords
-  shot = new PVector(-10, -10);
+  shot = new PVector(0, 0); // "hit" location is set to a place where the boids won't be near
 }
 
 void draw() {
   randomSeed(0);
   background(100, 150, 200);
 
-  // background elements
-  drawSky();
-  {
-    //   pushMatrix();
+  // -- BACKGROUND ELEMENTS
+  drawSky(); // background blue gradient
+  { // constrained motion using parametric equation
     float x = width*0.5 + 1000*cos(t2+PI);
-    float y = height/2-150 + 150*sin(t2+PI);
-    float a = map(255, 0, 255, height*0.5, 0);
-    //  translate(x, y);
-    //   rotate(HALF_PI);
+    float y = height/2 + 150*sin(t2+PI);
+    float a = map(x, 0, width*0.75, 0, 100);
     drawMoon(x, y, a);
-    //  popMatrix();
   }
   drawTerrain(0, height*0.3, width, height*0.3, 175, 50, 50, 50); // background mountain
 
-  //   Boids Pattern
+  // -- BOIDS PATTERN
   for (int i = 0; i < pos.length; i++) {
     // 1 - draw scene
     drawBoid(pos[i], vel[i]);
@@ -153,7 +146,7 @@ void draw() {
   }
 
   t += 0.01; // update time variable
-  t2 += 0.025;
+  t2 += 0.02;
 
   // elements in the foreground of the sketch
   foreground_elements();
@@ -173,6 +166,7 @@ void crosshair() {
 }
 // drawing function for the sky in the background, set position
 void drawSky() {
+  rectMode(CORNER);
   for (int y = 0, b = 255, g = 215; y <= height*0.5; y += 5, b += -1, g += -2) {
     for (int x = 0; x <= width; x+=5) {
       noStroke();
@@ -185,15 +179,15 @@ void drawMoon(float x, float y, float a) {
   ellipseMode(CENTER);
   noStroke();
   fill(100, a);
-  ellipse(x, y, 75, 75);
-  fill(150);
-  ellipse(x, y, 70, 70);
-  fill(175);
-  ellipse(x+11, y-8, 30, 30);
-  ellipse(x-10, y+5, 10, 10);
-  ellipse(x-20, y-15, 8, 8);
-  ellipse(x+4, y+18, 11, 11);
-  ellipse(x-10, y+20, 13, 13);
+  ellipse(x, y, 300, 300);
+  fill(150, a);
+  ellipse(x, y, 290, 290);
+  fill(175, a);
+  ellipse(x+75, y-80, 75, 75);
+  ellipse(x-45, y+75, 80, 80);
+  ellipse(x-80, y-75, 50, 50);
+  ellipse(x+50, y+25, 60, 60);
+  ellipse(x-30, y+30, 50, 50);
 }
 
 // drawing function for terrain elements using fractals
@@ -223,9 +217,10 @@ void front_grass() {
 }
 // drawing function for all foreground elements, set position
 void foreground_elements() {
+  drawTree(250, height*0.8);
   front_grass(); // draws grass
   drawTerrain(0, height*0.85, width, height*0.85, 20, 150, 100, 15); //draws dirt in front of grass
-  for (int count = 0; count <= 25; count++) {                        // draws rocks on dirt
+  for (int count = 0; count <= 25; count++) { // draws rocks on dirt
     float x = random(0, width);
     float y = random(height*0.9, height);
     noStroke();
@@ -233,8 +228,40 @@ void foreground_elements() {
     quad(x, y, x, y-15, x-13, y-16, x-27, y-5);
   }
 }
+// drawing function for tree
+//   position determined by (x, y)
+void drawTree(float x, float y) {
+  rectMode(CENTER);
+  ellipseMode(CENTER);
+  noStroke();
+  // tree trunk
+  fill(193, 94, 0);
+  rect(x, y-150, 50, 300);
+  //branches
+  stroke(193, 94, 0);
+  strokeWeight(10);
+  line(x, y-175, x-100, y-225);
+  line(x, y-200, x+100, y-275);
+  line(x, y-100, x+50, y-200);
+  strokeWeight(8);
+  line(x-50, y-200, x-35, y-250);
+  // leaves
+  noStroke();
+  fill(0, 203, 0);
+  ellipse(x-10, y-375, 200, 200); // big main green
+  ellipse(x+75, y-400, 100, 100);
+  ellipse(x-80, y-425, 150, 150);
+  ellipse(x+50, y-325, 125, 125);
+  ellipse(x-100, y-225, 50, 50); // green on left branch
+  fill(0, 175, 0); // darker green for green overlays
+  ellipse(x-10, y-375, 185, 185);
+  ellipse(x+75, y-400, 85, 85);
+  ellipse(x-80, y-425, 135, 135);
+  ellipse(x+50, y-325, 110, 110);
+  ellipse(x-100, y-225, 40, 40);
+}
 // drawing function for the dogs that pop up where a bird drops
-// position determined by parameters (x, y)
+//   position determined by parameters (x, y)
 void dog(float x, float y) {
   // ears
   pushMatrix();
@@ -281,7 +308,7 @@ void dog(float x, float y) {
   // nose
   noStroke();
   fill(25);
-  ellipse(x, y-120, 35, 25); // big part of nose
+  ellipse(x, y-120, 35, 25);   // big part of nose
   fill(200);
   ellipse(x+3, y-120, 15, 10); // shiny bit of nose
 }
