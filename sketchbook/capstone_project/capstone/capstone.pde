@@ -17,7 +17,8 @@ PVector shot;  // stored (x,y) position of where the mouse clicked, used to see 
 
 float[] dogX, dogY; // animation array variables for the dog's position on the screen
 float[] up;         // values for speeds at which the dogs moves up or down
-float t;
+float t; // time variable for noise function in dog's side-to-side movement
+float t2; // time variable for constrained parametric movement
 
 void setup() {
   size(1500, 800);
@@ -62,9 +63,10 @@ void setup() {
     grassX2[i] = random(-10, 10);
     grassY2[i] = height*0.9-random(150, 200);
   }
-  
+
   // initial value for time
   t = 0;
+  t2 = 0;
 
   // Initial value for shot coords
   shot = new PVector(-10, -10);
@@ -75,6 +77,17 @@ void draw() {
   background(100, 150, 200);
 
   // background elements
+  drawSky();
+  {
+    //   pushMatrix();
+    float x = width*0.5 + 1000*cos(t2+PI);
+    float y = height/2-150 + 150*sin(t2+PI);
+    float a = map(255, 0, 255, height*0.5, 0);
+    //  translate(x, y);
+    //   rotate(HALF_PI);
+    drawMoon(x, y, a);
+    //  popMatrix();
+  }
   drawTerrain(0, height*0.3, width, height*0.3, 175, 50, 50, 50); // background mountain
 
   //   Boids Pattern
@@ -140,6 +153,7 @@ void draw() {
   }
 
   t += 0.01; // update time variable
+  t2 += 0.025;
 
   // elements in the foreground of the sketch
   foreground_elements();
@@ -156,6 +170,30 @@ void crosshair() {
   line(mouseX, mouseY+10, mouseX, mouseY+25);
   line(mouseX-10, mouseY, mouseX-25, mouseY);
   line(mouseX+10, mouseY, mouseX+25, mouseY);
+}
+// drawing function for the sky in the background, set position
+void drawSky() {
+  for (int y = 0, b = 255, g = 215; y <= height*0.5; y += 5, b += -1, g += -2) {
+    for (int x = 0; x <= width; x+=5) {
+      noStroke();
+      fill(0, g, b);
+      rect(x, y, 5, 5);
+    }
+  }
+}
+void drawMoon(float x, float y, float a) {
+  ellipseMode(CENTER);
+  noStroke();
+  fill(100, a);
+  ellipse(x, y, 75, 75);
+  fill(150);
+  ellipse(x, y, 70, 70);
+  fill(175);
+  ellipse(x+11, y-8, 30, 30);
+  ellipse(x-10, y+5, 10, 10);
+  ellipse(x-20, y-15, 8, 8);
+  ellipse(x+4, y+18, 11, 11);
+  ellipse(x-10, y+20, 13, 13);
 }
 
 // drawing function for terrain elements using fractals
