@@ -1,6 +1,6 @@
 // Henry Wrede Black
 // CPSC 120 Capstone Project
-//    Duck-Hunt Inspired Interactive Animation
+//    Duck-Hunt Inspired Interactive Animation - hitting ducks results in the user getting eggs
 //    Clicking the mouse on a bird will cause it to fall, where a dog will catch it
 //    Pressing "r" or "R" will release the birds
 
@@ -13,6 +13,7 @@ float[] grassX1, grassX2, grassY2;
 
 boolean[] hit; // boolean array that says if a bird has been hit or not
 PVector shot;  // stored (x,y) position of where the mouse clicked, used to see if shot hit or not in boid behaviours
+int hit_count; // stores the number of times a bird has been hit
 
 float[] dogX, dogY; // animation array variables for the dog's position on the screen
 float[] up;         // values for speeds at which the dogs moves up or down
@@ -67,6 +68,7 @@ void setup() {
 
   // Initial value for shot coords
   shot = new PVector(0, 0); // "hit" location is set to a place where the boids won't be near
+  hit_count = 0;            // start animation with no hits on counter
 }
 
 void draw() {
@@ -99,6 +101,12 @@ void draw() {
     //  b - combine forces (one behavior)
     PVector steer = new PVector(0, 0);
     separation.setMag(5);
+
+    // Addition to Hit Counter before Hit is registered
+    if (dist(shot.x, shot.y, pos[i].x, pos[i].y) < 25 && !hit[i]) {
+      hit_count ++;
+      println(hit_count);
+    }
 
     // if the bird is hit, it will seek directly down...
     // or if the bird is out of bounds, it will seek a random point within bounds...
@@ -150,6 +158,7 @@ void draw() {
 
   // elements in the foreground of the sketch
   foreground_elements();
+  drawCounter(width-60, height-60);
   crosshair();
 }
 // -- DRAWING FUNCTIONS
@@ -163,6 +172,18 @@ void crosshair() {
   line(mouseX, mouseY+10, mouseX, mouseY+25);
   line(mouseX-10, mouseY, mouseX-25, mouseY);
   line(mouseX+10, mouseY, mouseX+25, mouseY);
+}
+void drawCounter(int x, int y){
+  ellipseMode(CENTER);
+  strokeWeight(5);
+  stroke(0);
+  fill(150);
+  ellipse(x, y, 100, 100);
+  
+  textAlign(CENTER);
+  textSize(70);
+  fill(255, 255-hit_count*5, 255-hit_count*5);
+  text(hit_count, x, y+20);
 }
 // drawing function for the sky in the background, set position
 void drawSky() {
