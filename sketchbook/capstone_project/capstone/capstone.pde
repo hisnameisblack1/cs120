@@ -17,7 +17,8 @@ int hit_count; // stores the number of times a bird has been hit
 
 float[] dogX, dogY; // animation array variables for the dog's position on the screen
 float[] up;         // values for speeds at which the dogs moves up or down
-float t; // time variable for noise function in dog's side-to-side movement
+float t[];  // time variable for noise function in dog's side-to-side movement
+
 float t2; // time variable for constrained parametric movement
 
 void setup() {
@@ -44,9 +45,11 @@ void setup() {
   dogX = new float[5];
   dogY = new float[5];
   up = new float[5];
+  t = new float[5];
   for (int i = 0; i < dogY.length; i++) {
     dogY[i] = height; // all dogs start at a y value equal to the window height
     up[i] = -10;      // downward speed of the dogs starts as -10
+    t[i] = i;         // first time variable, used for perlin noise equation
   }
 
   // -- Grass array value initialization
@@ -63,7 +66,6 @@ void setup() {
     grassY2[i] = height*0.9-random(150, 200); // random y value for endpoint
   }
 
-  t = 0;  // first time variable, used for perlin noise equation
   t2 = 0; // second time variable, used for the parametric motion equation
 
   // Initial value for shot coords
@@ -83,7 +85,7 @@ void draw() {
     float a = map(x, 0, width*0.75, 0, 100);
     drawMoon(x, y, a);
   }
-  drawTerrain(0, height*0.3, width, height*0.3, 175, 50, 50, 50); // background mountain
+  drawTerrain(0, height*0.3, width, height*0.3, 175, 50, 50, 50); // mountain in background
 
   // -- BOIDS PATTERN
   for (int i = 0; i < pos.length; i++) {
@@ -96,13 +98,14 @@ void draw() {
     //  a - compute steering force for each behavior
     PVector separation = computeSeparation(pos[i], vel[i], radius, angle, pos, vel);
     PVector wander = computeWander (pos[i], vel[i], maxspeed );
+    PVector flee = computeFlee (pos[i], vel[i], maxspeed, new PVector(mouseX, mouseY));
     PVector arrive_random = computeArrive (pos[i], vel[i], maxspeed, random_point_within_bounds, 100); // behaviour to return bird within bounds
     PVector seek_down = computeArrive(pos[i], vel[i], maxspeed, new PVector(pos[i].x, height), 5);     // behaviour to make the bird go down to the x pos where it was hit
     //  b - combine forces (one behavior)
     PVector steer = new PVector(0, 0);
     separation.setMag(5);
 
-    // Addition to Hit Counter before Hit is registered
+    // Addition to Hit Counter before Hit is registered (can't be in following conditionals because conditional remains true for as long as hit[i] is true
     if (dist(shot.x, shot.y, pos[i].x, pos[i].y) < 25 && !hit[i]) {
       hit_count ++;
       println(hit_count);
@@ -114,6 +117,8 @@ void draw() {
     if (dist(shot.x, shot.y, pos[i].x, pos[i].y) < 25 || hit[i]) { // if bird is within 25 pixels of stored (shot) value or already marked as "hit" - when hit is true, bird will then only seek down
       hit[i] = true; // set hit to true for the birds position in the array
       steer.add(seek_down);
+    } else if (!hit[i] && dist(pos[i].x, pos[i].y, mouseX, mouseY) < 300) { // if bird hasn't been hit and crosshair is near the duck, it will flee
+      steer.add(flee);
     } else if (!hit[i] && (pos[i].y < height*0.1 || pos[i].y > height*0.55) || (pos[i].x < width*0.1 || pos[i].x > width*0.9)) { // if bird hasn't been "hit" and leaves set bounds of sketch, arrive to a random point within the bounds
       steer.add(arrive_random);
     } else if (!hit[i]) { // if bird hasn't been "hit" then continue regular behaviours
@@ -139,10 +144,11 @@ void draw() {
     // draw dog
     for (int i = 0; i < dogX.length; i++) {
       dogX[i] = pos[i].x; // dog's x position is the same as the corresponding bird in the array
-      dog(dogX[i]+map(noise(t), 0, 1, -20, 20), dogY[i]);
+      dog(dogX[i]+map(noise(t[i]), 0, 1, -20, 20), dogY[i]);
     }
     // update dog
     for (int i = 0; i < dogX.length; i++) {
+      t[i] += 0.01; // update time variable
       if (pos[i].y > height*0.9 && hit[i]) {
         dogY[i] += up[i];
         up[i] = min(0, up[i] + 0.18);
@@ -152,8 +158,7 @@ void draw() {
       }
     }
   }
-
-  t += 0.01; // update time variable
+  //update second time variable
   t2 += 0.02;
 
   // elements in the foreground of the sketch
@@ -161,6 +166,7 @@ void draw() {
   drawCounter(width-60, height-60);
   crosshair();
 }
+
 // -- DRAWING FUNCTIONS
 // drawing function for crosshair that follows the mouse
 void crosshair() {
@@ -173,17 +179,21 @@ void crosshair() {
   line(mouseX-10, mouseY, mouseX-25, mouseY);
   line(mouseX+10, mouseY, mouseX+25, mouseY);
 }
-void drawCounter(int x, int y){
+// draws a counter tracking the number of birds hit by user
+//  position (x, y)
+void drawCounter(int x, int y) {
   ellipseMode(CENTER);
   strokeWeight(5);
   stroke(0);
   fill(150);
   ellipse(x, y, 100, 100);
-  
+  // text functions are sourced from processing.org/reference/txt_.html
+  //   using these functions, I'm able to customize and display a String type variable in the animation
+  //   in this case, I'm using a counter variable which tracks the number of ducks that have been hit
   textAlign(CENTER);
   textSize(70);
-  fill(255, 255-hit_count*5, 255-hit_count*5);
-  text(hit_count, x, y+20);
+  fill(255, 255-hit_count*5, 255-hit_count*5); // displayed text turns red as counter increases
+  text(hit_count, x, y+20); // text(c, x, y);
 }
 // drawing function for the sky in the background, set position
 void drawSky() {
