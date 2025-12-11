@@ -215,11 +215,37 @@ void front_grass() {
     line(grassX1[i], height*0.9, grassX1[i]+grassX2[i], grassY2[i]);
   }
 }
+// drawing function for footprints that go across screen
+//  position (x, y)
+void drawFootsteps(float x, float y) {
+  ellipseMode(CENTER);
+  rectMode(CENTER);
+  noStroke();
+  // single loop with multiple loop variables
+  for (int x_change = 0, a = 255; a > 0; x += 115, a += -30) {
+    fill(0, 0, 0, a);
+    // left footprint
+    // heel of foot
+    rect(x + x_change, y, 10, 20);
+    ellipse(x-5 + x_change, y, 20, 20);
+    // front part of foot
+    rect(x+25 + x_change, y, 30, 20);
+    ellipse(x+40 + x_change, y, 20, 20);
+    // right footprint
+    // heel of foot
+    rect(x+50 + x_change, y+30, 10, 20);
+    ellipse(x+45 + x_change, y+30, 20, 20);
+    // front part of foot
+    rect(x+75 + x_change, y+30, 30, 20);
+    ellipse(x+90 + x_change, y+30, 20, 20);
+  }
+}
 // drawing function for all foreground elements, set position
 void foreground_elements() {
   drawTree(250, height*0.8);
   front_grass(); // draws grass
   drawTerrain(0, height*0.85, width, height*0.85, 20, 150, 100, 15); //draws dirt in front of grass
+  drawFootsteps(0, height*0.9);
   for (int count = 0; count <= 25; count++) { // draws rocks on dirt
     float x = random(0, width);
     float y = random(height*0.9, height);
