@@ -7,7 +7,7 @@ void setup() {
   background(255);
 }
 void draw() {
-  for (int x = 0; x <= width-height/4; x = x + height/2) {
+  for (int x = 0; x <= width; x = x + height/2) {
     fill(0, 0, 200);
     triangle(x, 0, x, height, x+height/2, height/2);
   }

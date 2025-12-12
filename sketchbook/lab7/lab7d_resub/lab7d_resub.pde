@@ -7,32 +7,37 @@ void setup() {
 void draw() {
   background(0);
 
-  geese(0, 0); //top strip of geese
-  geese(0, height-40); //bottom strip of geese
+  geese(0); //top strip of geese
+  geese(height-40); //bottom strip of geese
 
-  fence(0, 40); //top fence strip
-  fence(0, height-120); //bottom fence strip
+  fence(40); //top fence strip
+  fence(height-120); //bottom fence strip
 
-  logs(0, 120); //center row of log cabins
+  logs(120); //center row of log cabins
 }
 // -- DRAWING VARIABLES
 //draws line of "geese" at point (xG, yG) to the edge of the window
-void geese(int x, int y) {
+void geese(int y) {
   //xPos represents the change in x each loop
   for (int xPos = 0; xPos <= width-20; xPos += 20) {
     fill(0, 0, 200);
-    triangle(x + xPos, y, x + xPos, y+40, x+20 + xPos, y+20);
+    triangle(xPos, y, xPos, y+40, 20 + xPos, y+20);
   }
 }
 //draws line of single rail fence blocks at position (x, y)
-void fence(int x, int y) {
+void fence(int y) {
   //xPos represents the change in x each loop
-  for (int xPos = 0; xPos <= width-80; xPos += 80) {
-    hsp(x+40 + xPos, y, 80, 80);
-    hsp(x + xPos, y+40, 80, 80);
-    vsp(x + xPos, y, 80, 80);
-    vsp(x+40 + xPos, y+40, 80, 80);
+  for (int x = 0; x < 80*5; x += 80) {
+    single_rail_block(x, y);
   }
+}
+// draws a single rail fence block
+// position (x, y)
+void single_rail_block( int x, int y) {
+  hsp(x+40, y, 80, 80);
+  hsp(x, y+40, 80, 80);
+  vsp(x, y, 80, 80);
+  vsp(x+40, y+40, 80, 80);
 }
 //draws the horizontal fence blocks at position (x, y) with width w and height h
 void hsp(int x, int y, int w, int h) {
@@ -53,16 +58,17 @@ void vsp(int x, int y, int w, int h) {
   }
 }
 //draws a row of log cabin blocks at position (x, y)
-void logs(int x, int y) {
+void logs(int y) {
   //xPos represents the change in x each loop
-  for (int xPos = 0; xPos <= width-80; xPos += 80) {
-    singleLog(x + xPos, y);
+  for (int x = 0; x < 80*5; x += 80) {
+    singleLog(x, y);
   }
 }
 //draws a single log cabin block at position (x, y)
 void singleLog(int x, int y) {
   rectMode(CORNER);
-   //xPos and yPos represent the changes in x and y each loop, s represents the diminishing size of the logs
+  // (xPos and yPos) represents the changes in x and y each loop, 
+  // (s) represents the diminishing size of the logs
   for (int xPos = 0, yPos = 0, s = 80; xPos < 30; xPos += 10, yPos += 10, s += -20) {
     fill(255, 225, 50);
     rect(x+70 + -xPos, y + yPos, 10, s); //right
