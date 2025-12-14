@@ -196,8 +196,11 @@ void drawCounter(int x, int y) {
   textAlign(CENTER);
   textSize(70);
   fill(255, 255-hit_count*5, 255-hit_count*5); // displayed text turns red as counter increases
-  text(hit_count, x, y+20); // text(c, x, y);
+  text(hit_count, x, y+20);                    // text(c, x, y);
 }
+/*
+// drawing function for a textbox that comes up when all birds are hit, 
+//  issue is that its still a prior-happenings using the hit[] array state variable
 void drawABHT(float x, float y) {
   if (all_birds_hit) {
     y += -10;
@@ -207,21 +210,13 @@ void drawABHT(float x, float y) {
     y += 10;
     //  y = min(height+50, y);
   }
-  for (int i = 0; i < hit.length; i++) {
-    if (hit[i]) {
-      all_birds_hit = true;
-    } else {
-      all_birds_hit = false;
-    }
-    /*  for (int i = 0; i < hit.length; i++) {
-     if (!all_birds_hit && hit[i]) {
+for (int i = 0; i < pos.length; i++){
+     if (!all_birds_hit && pos[i].y < height*0.8) {
      all_birds_hit = true;
-     } else if (all_birds_hit && !hit[i]) {
+     } else if (all_birds_hit && pos.y < height*0.8) {
      all_birds_hit = false;
      }
-     */
-  }
-
+}
   strokeWeight(50);
   stroke(0);
   line(x-200, y, x+200, y);
@@ -230,6 +225,7 @@ void drawABHT(float x, float y) {
   fill(255);
   text("All birds have been caught, press 'R' to release them", x, y);
 }
+*/
 // drawing function for the sky in the background, set position
 void drawSky() {
   rectMode(CORNER);
