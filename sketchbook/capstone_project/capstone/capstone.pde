@@ -79,13 +79,14 @@ void draw() {
 
   // -- BACKGROUND ELEMENTS
   drawSky(); // background blue gradient
-  { // constrained motion using parametric equation
-    float x = width*0.5 + 1000*cos(t2+PI);
+  { // constrained motion using parametric equation for the moon
+    float x = width*0.75 + 1000*cos(t2+PI);
     float y = height/2 + 150*sin(t2+PI);
-    float a = map(x, 0, width*0.75, 0, 100);
+    float a = map(x, 0, width*0.75, 0, 150);
     drawMoon(x, y, a);
   }
-  drawTerrain(0, height*0.3, width, height*0.3, 175, 50, 50, 50); // mountain in background
+  drawClouds(0, 0, width, 10, 150, 255, 5, 255);                    // fractal clouds
+  drawTerrain(0, height*0.5, width, height*0.5, 175, 50, 50, 50);   // fractal mountain in background
 
   // -- BOIDS PATTERN
   for (int i = 0; i < pos.length; i++) {
@@ -197,7 +198,7 @@ void drawCounter(int x, int y) {
 // drawing function for the sky in the background, set position
 void drawSky() {
   rectMode(CORNER);
-  for (int y = 0, b = 255, g = 215; y <= height*0.5; y += 5, b += -1, g += -2) {
+  for (int y = 0, b = 255, g = 215; y <= height*0.75; y += 5, b += -1, g += -2) {
     for (int x = 0; x <= width; x+=5) {
       noStroke();
       fill(0, g, b);
@@ -205,6 +206,9 @@ void drawSky() {
     }
   }
 }
+// drawing function for the moon moving in back
+//  (x, y) determines position
+//  (a) determines the alpha value, used in the sketch to map as an animation variable
 void drawMoon(float x, float y, float a) {
   ellipseMode(CENTER);
   noStroke();
@@ -219,7 +223,27 @@ void drawMoon(float x, float y, float a) {
   ellipse(x+50, y+25, 60, 60);
   ellipse(x-30, y+30, 50, 50);
 }
-
+// drawing function for fractal clouds
+// (x,y) determines position, (s) determines width and height of rectangles
+// (c1), (c2), (c3), (c4) represent the color values at each corner of the rectangle
+// (maxd) is maximum displacement, which affects the level of contrast in the clouds
+void drawClouds(float x, float y, float s, float c1, float c2, float c3, float c4, float maxd) {
+  if (s < 10) {
+    rectMode(CORNER);
+    noStroke();
+    float c = (c1+c2+c3+c4)/4;
+    fill(c, c, 255, 150);
+    rect(x, y, s, s);
+  } else {
+    {
+      float d = random(-maxd, maxd);
+      drawClouds(x, y, s/2, c1, (c1+c2)/2, ((c1+c2+c3+c4)/4)+d, (c1+c4)/2, maxd/2);             // top left rect
+      drawClouds(x+(s/2), y, s/2, (c1+c2)/2, c2, (c2+c3)/2, ((c1+c2+c3+c4)/4)+d, maxd/2);       // top right rect
+      drawClouds(x+(s/2), y+(s/2), s/2, ((c1+c2+c3+c4)/4)+d, (c2+c3)/2, c3, (c3+c4)/2, maxd/2); // bottom right rect
+      drawClouds(x, y+(s/2), s/2, (c1+c4)/2, ((c1+c2+c3+c4)/4)+d, (c3+c4)/2, c4, maxd/2);       // bottom left rect
+    }
+  }
+}
 // drawing function for terrain elements using fractals
 //  (x1, y1), (x2, y2) specify the endpoints for the midpoint displacement math
 //  (maxd) is the maximum displacement, which controls the "jaggedness" of the terrain

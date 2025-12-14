@@ -1,7 +1,7 @@
 // fractal clouds for use in capstone project
 
 void setup() {
-  size(500, 500);
+  size(800, 500);
 }
 
 void draw() {
@@ -9,7 +9,7 @@ void draw() {
   randomSeed(0);
 
 
-  drawClouds(0, 0, width, 10, 255, 75, 10, 200);
+  drawClouds(0, 0, width, 10, 255, 75, 10, 255);
 
 
   drawTerrain(0, height*0.75, width, height*0.75, 50, 0, 0, 0);
@@ -20,7 +20,7 @@ void draw() {
 // (c1), (c2), (c3), (c4) represent the color values at each corner of the rectangle
 // (maxd) is maximum displacement, which affects the level of contrast in the clouds
 void drawClouds(float x, float y, float s, float c1, float c2, float c3, float c4, float maxd) {
-  if (s < 30) {
+  if (s < 0.75) {
     noStroke();
     float c = (c1+c2+c3+c4)/4;
     fill(c, c, 255);
