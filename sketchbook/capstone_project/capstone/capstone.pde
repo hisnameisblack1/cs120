@@ -21,6 +21,9 @@ float t[];  // time variable for noise function in dog's side-to-side movement
 
 float t2; // time variable for constrained parametric movement
 
+float text_y;          // (y) position of all birds hit textbook
+boolean all_birds_hit; // state variable, true if all birds are marked as hit
+
 void setup() {
   size(1500, 800);
 
@@ -35,12 +38,11 @@ void setup() {
 
     hit[i] = false; // no birds are hit when sketch starts
   }
-  // other boid parameters
+  //   other boid parameters
   radius = 60;
   angle = radians(135);
   maxforce = .6;
   maxspeed = 10;
-
   // -- Dog properties
   dogX = new float[5];
   dogY = new float[5];
@@ -51,7 +53,6 @@ void setup() {
     up[i] = -10;      // downward speed of the dogs starts as -10
     t[i] = i;         // first time variable, used for perlin noise equation
   }
-
   // -- Grass array value initialization
   grass_stroke = new float[1000];
   grass_strokeweight = new float[1000];
@@ -66,8 +67,9 @@ void setup() {
     grassY2[i] = height*0.9-random(150, 200); // random y value for endpoint
   }
 
-  t2 = 0; // second time variable, used for the parametric motion equation
-
+  // -- Miscellaneous variables
+  t2 = 0; // second time variable, used for the parametric motion equation of the moon
+  text_y = height/2;
   // Initial value for shot coords
   shot = new PVector(0, 0); // "hit" location is set to a place where the boids won't be near
   hit_count = 0;            // start animation with no hits on counter
@@ -164,6 +166,7 @@ void draw() {
   // elements in the foreground of the sketch
   foreground_elements();
   drawCounter(width-60, height-60);
+  drawABHT(width/2, text_y);
   crosshair();
 }
 
@@ -194,6 +197,38 @@ void drawCounter(int x, int y) {
   textSize(70);
   fill(255, 255-hit_count*5, 255-hit_count*5); // displayed text turns red as counter increases
   text(hit_count, x, y+20); // text(c, x, y);
+}
+void drawABHT(float x, float y) {
+  if (all_birds_hit) {
+    y += -10;
+    //  y = max(height*0.5, y);
+    x += map(noise(t2+1), 0, 1, -10, 10);
+  } else {
+    y += 10;
+    //  y = min(height+50, y);
+  }
+  for (int i = 0; i < hit.length; i++) {
+    if (hit[i]) {
+      all_birds_hit = true;
+    } else {
+      all_birds_hit = false;
+    }
+    /*  for (int i = 0; i < hit.length; i++) {
+     if (!all_birds_hit && hit[i]) {
+     all_birds_hit = true;
+     } else if (all_birds_hit && !hit[i]) {
+     all_birds_hit = false;
+     }
+     */
+  }
+
+  strokeWeight(50);
+  stroke(0);
+  line(x-200, y, x+200, y);
+  textAlign(CENTER);
+  textSize(20);
+  fill(255);
+  text("All birds have been caught, press 'R' to release them", x, y);
 }
 // drawing function for the sky in the background, set position
 void drawSky() {
