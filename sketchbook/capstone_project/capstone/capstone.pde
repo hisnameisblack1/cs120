@@ -105,27 +105,26 @@ void draw() {
     PVector steer = new PVector(0, 0);
     separation.setMag(5);
 
-    // Addition to Hit Counter before Hit is registered (can't be in following conditionals because conditional remains true for as long as hit[i] is true
+    //   Addition to Hit Counter before Hit is registered (can't be in following conditionals because conditional remains true for as long as hit[i] is true
     if (dist(shot.x, shot.y, pos[i].x, pos[i].y) < 25 && !hit[i]) {
       hit_count ++;
       println(hit_count);
     }
 
-    // if the bird is hit, it will seek directly down...
-    // or if the bird is out of bounds, it will seek a random point within bounds...
-    // otherwise if bird is within bounds and not hit it will maintain regular behaviour (seperation/wander)...
-    if (dist(shot.x, shot.y, pos[i].x, pos[i].y) < 25 || hit[i]) { // if bird is within 25 pixels of stored (shot) value or already marked as "hit" - when hit is true, bird will then only seek down
+    //   If the bird is hit, it will seek directly down...
+    //   or if the bird is out of bounds, it will seek a random point within bounds...
+    //   otherwise if bird is within bounds and not hit it will maintain regular behaviour (seperation/wander)...
+    if (dist(shot.x, shot.y, pos[i].x, pos[i].y) < 25 || hit[i]) { // if bird is within 25 pixels of stored (shot) value or already marked as "hit"
       hit[i] = true; // set hit to true for the birds position in the array
       steer.add(seek_down);
-    } else if (!hit[i] && dist(pos[i].x, pos[i].y, mouseX, mouseY) < 300) { // if bird hasn't been hit and crosshair is near the duck, it will flee
+    } else if (dist(pos[i].x, pos[i].y, mouseX, mouseY) < 300) { // if bird hasn't been hit and crosshair is near the duck, it will flee
       steer.add(flee);
-    } else if (!hit[i] && (pos[i].y < height*0.1 || pos[i].y > height*0.55) || (pos[i].x < width*0.1 || pos[i].x > width*0.9)) { // if bird hasn't been "hit" and leaves set bounds of sketch, arrive to a random point within the bounds
+    } else if ((pos[i].y < height*0.1 || pos[i].y > height*0.5) || (pos[i].x < width*0.1 || pos[i].x > width*0.9)) { // outlines boid containment
       steer.add(arrive_random);
-    } else if (!hit[i]) { // if bird hasn't been "hit" then continue regular behaviours
+    } else { // if bird hasn't been "hit" then continue regular behaviours
       steer.add(separation);
       steer.add(wander);
     }
-
     //  c - limit the size of the force that can be applied
     steer.limit(maxforce);
     // 3 - update boid's velocity
