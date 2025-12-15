@@ -21,12 +21,11 @@ float t[];  // time variable for noise function in dog's side-to-side movement
 
 float t2; // time variable for constrained parametric movement
 
-float text_y;          // (y) position of all birds hit textbook
-boolean all_birds_hit; // state variable, true if all birds are marked as hit
+float x_pede;  // variable for the center (x) of the millipede
+boolean right; // true if millipede is moving to the right
 
 void setup() {
   size(1500, 800);
-
   // -- BIRD/BOID Definitions and initializations
   // boids (ducks) start with random position above the grass and random velocity
   pos = new PVector[5];
@@ -69,10 +68,12 @@ void setup() {
 
   // -- Miscellaneous variables
   t2 = 0; // second time variable, used for the parametric motion equation of the moon
-  text_y = height/2;
   // Initial value for shot coords
   shot = new PVector(0, 0); // "hit" location is set to a place where the boids won't be near
   hit_count = 0;            // start animation with no hits on counter
+
+  x_pede = -60; // millipede starts off-screen
+  right = true; // millipede starts by moving right
 }
 
 void draw() {
@@ -83,7 +84,7 @@ void draw() {
   drawSky(); // background blue gradient
   { // constrained motion using parametric equation for the moon
     float x = width*0.75 + 1000*cos(t2+PI);
-    float y = height/2 + 150*sin(t2+PI);
+    float y = height*0.6 + 150*sin(t2+PI);
     float a = map(x, 0, width*0.75, 0, 150);
     drawMoon(x, y, a);
   }
@@ -165,8 +166,8 @@ void draw() {
 
   // elements in the foreground of the sketch
   foreground_elements();
+  drawPede(x_pede, height*0.85);
   drawCounter(width-60, height-60);
-  drawABHT(width/2, text_y);
   crosshair();
 }
 
@@ -198,34 +199,7 @@ void drawCounter(int x, int y) {
   fill(255, 255-hit_count*5, 255-hit_count*5); // displayed text turns red as counter increases
   text(hit_count, x, y+20);                    // text(c, x, y);
 }
-/*
-// drawing function for a textbox that comes up when all birds are hit, 
-//  issue is that its still a prior-happenings using the hit[] array state variable
-void drawABHT(float x, float y) {
-  if (all_birds_hit) {
-    y += -10;
-    //  y = max(height*0.5, y);
-    x += map(noise(t2+1), 0, 1, -10, 10);
-  } else {
-    y += 10;
-    //  y = min(height+50, y);
-  }
-for (int i = 0; i < pos.length; i++){
-     if (!all_birds_hit && pos[i].y < height*0.8) {
-     all_birds_hit = true;
-     } else if (all_birds_hit && pos.y < height*0.8) {
-     all_birds_hit = false;
-     }
-}
-  strokeWeight(50);
-  stroke(0);
-  line(x-200, y, x+200, y);
-  textAlign(CENTER);
-  textSize(20);
-  fill(255);
-  text("All birds have been caught, press 'R' to release them", x, y);
-}
-*/
+
 // drawing function for the sky in the background, set position
 void drawSky() {
   rectMode(CORNER);
@@ -337,6 +311,31 @@ void foreground_elements() {
     noStroke();
     fill(150);
     quad(x, y, x, y-15, x-13, y-16, x-27, y-5);
+  }
+}
+// drawing function for a millipede
+// (x,y) determines position
+void drawPede(float x, float y) {
+  for (float xLeg = x-50; xLeg <= x+50; xLeg += 4) {
+    stroke(95, 95, 95);
+    strokeWeight(3);
+    line(xLeg, y, xLeg, y+7);
+  }
+  stroke(178, 0, 0);
+  strokeWeight(10);
+  line(x-50, y, x+50, y);
+
+  // update position of millipede
+  if (right) {
+    x_pede += 5;
+  } else {
+    x_pede += -5;
+  }
+  // change directions
+  if (right && x_pede > width+60) {
+    right = false;
+  } else if (!right && x_pede < -60) {
+    right = true;
   }
 }
 // drawing function for tree
