@@ -53,11 +53,11 @@ void setup() {
     t[i] = i;         // first time variable, used for perlin noise equation
   }
   // -- Grass array value initialization
-  grass_stroke = new float[1000];
-  grass_strokeweight = new float[1000];
-  grassX1 = new float[1000];
-  grassX2 = new float[1000];
-  grassY2 = new float[1000];
+  grass_stroke = new float[50];
+  grass_strokeweight = new float[50];
+  grassX1 = new float[50];
+  grassX2 = new float[50];
+  grassY2 = new float[50];
   for (int i = 0; i < grass_stroke.length; i++) {
     grass_stroke[i] = random(150, 225);       // color of grass varies
     grass_strokeweight[i] = random(5, 15);    // thickness of grass varies
@@ -67,7 +67,7 @@ void setup() {
   }
 
   // -- Miscellaneous variables
-  t2 = 0; // second time variable, used for the parametric motion equation of the moon
+  t2 = 0;                   // second time variable, used for the parametric motion equation of the moon
   // Initial value for shot coords
   shot = new PVector(0, 0); // "hit" location is set to a place where the boids won't be near
   hit_count = 0;            // start animation with no hits on counter
@@ -269,9 +269,11 @@ void drawTerrain(float x1, float y1, float x2, float y2, float maxd, int r, int 
 // drawing function for the grass, set position
 void front_grass() {
   for (int i = 0; i < grass_stroke.length; i++) {
-    stroke(0, grass_stroke[i], 50);
-    strokeWeight(grass_strokeweight[i]);
-    line(grassX1[i], height*0.9, grassX1[i]+grassX2[i], grassY2[i]);
+    for (float x = 0; x <= width-75; x+= 75) {
+      stroke(0, grass_stroke[i], 50);
+      strokeWeight(grass_strokeweight[i]);
+      line(grassX1[i]+x, height*0.9, (grassX1[i]+grassX2[i])+x, grassY2[i]);
+    }
   }
 }
 // drawing function for footprints that go across screen
